@@ -327,6 +327,35 @@ def test_contract_create_accepts_pdf_when_artifact_replace_is_denied(
     assert created["report"]["findings"][0]["category"] == "non_compete"
 
 
+def test_contract_create_detects_uploaded_pdf_contract_type_when_dropdown_is_wrong() -> None:
+    store_path = RUNTIME_DIR / "api_detected_pdf_type.json"
+    encoded = base64.b64encode(
+        minimal_pdf_bytes(
+            "PERSONAL LOAN AGREEMENT The borrower shall provide a blank cheque as security."
+        )
+    ).decode("ascii")
+
+    with running_test_server(store_path) as base_url:
+        create_request = request.Request(
+            f"{base_url}/contracts",
+            data=json.dumps(
+                {
+                    "filename": "loan_agreement.pdf",
+                    "content_base64": encoded,
+                    "contract_type": "employment",
+                }
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with request.urlopen(create_request, timeout=5) as response:
+            created = json.loads(response.read().decode("utf-8"))
+
+    assert created["report"]["contract_type"] == "loan"
+    assert created["report"]["overall_risk_score"] > 0
+    assert created["report"]["findings"][0]["category"] == "security"
+
+
 def test_create_server_allows_ephemeral_port(monkeypatch) -> None:
     os.environ["POCKET_LAWYER_PORT"] = "900"
     get_settings.cache_clear()

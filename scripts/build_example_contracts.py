@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "demo_contracts"
 
 EXAMPLE_CONTRACTS = {
-    "employment_offer_demo.pdf": {
+    "employment_offer.pdf": {
         "title": "EMPLOYMENT AGREEMENT",
         "clauses": [
             "All intellectual property created outside work hours belongs to the employer.",
@@ -17,14 +17,14 @@ EXAMPLE_CONTRACTS = {
             "Either party may terminate this agreement by giving 30 days notice.",
         ],
     },
-    "freelancer_sow_demo.pdf": {
+    "freelancer_sow.pdf": {
         "title": "FREELANCER STATEMENT OF WORK",
         "clauses": [
             "The client may request unlimited revisions until fully satisfied.",
             "Payment is due within 15 days of each approved milestone invoice.",
         ],
     },
-    "rent_agreement_demo.pdf": {
+    "rent_agreement.pdf": {
         "title": "RESIDENTIAL RENT AGREEMENT",
         "clauses": [
             "This is an 11-month rent agreement for a residential apartment.",
@@ -33,7 +33,7 @@ EXAMPLE_CONTRACTS = {
             "The landlord may enter the premises without notice for inspection or repairs.",
         ],
     },
-    "nda_demo.pdf": {
+    "nda.pdf": {
         "title": "NON-DISCLOSURE AGREEMENT",
         "clauses": [
             "The recipient shall not use general knowledge, skills, or experience learned during discussions.",
@@ -41,7 +41,7 @@ EXAMPLE_CONTRACTS = {
             "Disclosure required by law or court order is permitted after notice.",
         ],
     },
-    "loan_agreement_demo.pdf": {
+    "loan_agreement.pdf": {
         "title": "PERSONAL LOAN AGREEMENT",
         "clauses": [
             "The borrower shall provide a blank cheque as security.",

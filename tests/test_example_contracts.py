@@ -12,31 +12,31 @@ ROOT = Path(__file__).resolve().parents[1]
 
 EXAMPLE_CONTRACTS = [
     (
-        "employment_offer_demo.pdf",
+        "employment_offer.pdf",
         "employment",
         "high",
         {"ip_ownership", "non_compete", "compensation"},
     ),
     (
-        "freelancer_sow_demo.pdf",
+        "freelancer_sow.pdf",
         "freelancer",
         "medium",
         {"payment_terms", "scope_creep"},
     ),
     (
-        "rent_agreement_demo.pdf",
+        "rent_agreement.pdf",
         "rent",
         "high",
         {"security_deposit", "lock_in", "privacy"},
     ),
     (
-        "nda_demo.pdf",
+        "nda.pdf",
         "nda",
         "medium",
         {"career_restriction", "mutuality", "disclosure_exception"},
     ),
     (
-        "loan_agreement_demo.pdf",
+        "loan_agreement.pdf",
         "loan",
         "high",
         {"security", "interest", "default"},

@@ -2210,6 +2210,10 @@ The EMI schedule is attached as Annexure A.`,
 
           activeReportId = payload.record?.id || "";
           activeReport = payload.report;
+          if (payload.report?.contract_type) {
+            contractType.value = payload.report.contract_type;
+            syncContractPills();
+          }
           if (file) {
             syncTextareaWithExtractedText(payload.extracted_text, file);
           }

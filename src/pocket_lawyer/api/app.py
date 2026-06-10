@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import unquote, urlsplit
 
 from pocket_lawyer.analysis import analyze_contract, analyze_extracted_document
+from pocket_lawyer.analysis.contract_type_detection import detect_contract_type_for_upload
 from pocket_lawyer.intake import IntakeError, build_contract_submission
 from pocket_lawyer.settings import get_settings
 from pocket_lawyer.storage import ReportStore
@@ -135,7 +136,13 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
             return
 
         contract_type = payload.get("contract_type", "employment")
-        if not isinstance(contract_type, str) or not contract_type.strip():
+        if submission.source_file_bytes is not None:
+            contract_type = detect_contract_type_for_upload(
+                submission.document,
+                source_name=submission.source_name,
+                requested_contract_type=contract_type,
+            )
+        elif not isinstance(contract_type, str) or not contract_type.strip():
             contract_type = "employment"
 
         report = analyze_extracted_document(
