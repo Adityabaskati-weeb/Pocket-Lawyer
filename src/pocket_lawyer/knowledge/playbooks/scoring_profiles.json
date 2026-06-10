@@ -1,0 +1,124 @@
+{
+  "employment": {
+    "category_weights": {
+      "ip_ownership": 1.1,
+      "non_compete": 1.1,
+      "compensation": 1.08,
+      "bond": 1.12,
+      "notice_period": 0.92,
+      "exit_obligations": 0.85
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 70,
+    "medium_threshold": 35,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "bond",
+      "compensation",
+      "ip_ownership",
+      "non_compete"
+    ]
+  },
+  "freelancer": {
+    "category_weights": {
+      "ip_payment": 1.12,
+      "payment_terms": 1.08,
+      "scope_creep": 1.0
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 68,
+    "medium_threshold": 34,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "ip_payment",
+      "payment_terms"
+    ]
+  },
+  "rent": {
+    "category_weights": {
+      "security_deposit": 1.12,
+      "lock_in": 1.08,
+      "privacy": 1.05
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 66,
+    "medium_threshold": 32,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "lock_in",
+      "privacy",
+      "security_deposit"
+    ]
+  },
+  "nda": {
+    "category_weights": {
+      "confidentiality": 1.08,
+      "career_restriction": 1.05,
+      "mutuality": 1.02
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 65,
+    "medium_threshold": 32,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "confidentiality",
+      "career_restriction"
+    ]
+  },
+  "vendor": {
+    "category_weights": {
+      "liability": 1.15,
+      "payment_terms": 1.06,
+      "scope": 1.05
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 68,
+    "medium_threshold": 34,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "liability",
+      "payment_terms"
+    ]
+  },
+  "loan": {
+    "category_weights": {
+      "security": 1.18,
+      "interest": 1.12,
+      "default": 1.08,
+      "repayment": 0.92
+    },
+    "red_weight": 10,
+    "yellow_weight": 4,
+    "green_credit": 3,
+    "high_threshold": 64,
+    "medium_threshold": 30,
+    "high_red_count": 2,
+    "medium_red_count": 1,
+    "medium_yellow_count": 2,
+    "critical_categories": [
+      "default",
+      "interest",
+      "security"
+    ]
+  }
+}
