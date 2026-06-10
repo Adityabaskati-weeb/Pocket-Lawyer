@@ -1,0 +1,50 @@
+[
+  {
+    "id": "employment_non_compete_ip",
+    "contract_type": "employment",
+    "text": "All intellectual property created outside work hours belongs to the employer. The employee agrees to a non-compete for 24 months after employment.",
+    "expected_risk_level": "high",
+    "required_categories": ["ip_ownership", "non_compete"],
+    "min_findings": 2
+  },
+  {
+    "id": "freelancer_ip_before_payment",
+    "contract_type": "freelancer",
+    "text": "The freelancer assigns all rights and intellectual property to the client immediately before payment.",
+    "expected_risk_level": "high",
+    "required_categories": ["ip_payment"],
+    "min_findings": 1
+  },
+  {
+    "id": "rent_security_deposit",
+    "contract_type": "rent",
+    "text": "The landlord may retain the security deposit at sole discretion for any reason.",
+    "expected_risk_level": "high",
+    "required_categories": ["security_deposit"],
+    "min_findings": 1
+  },
+  {
+    "id": "nda_perpetual_confidentiality",
+    "contract_type": "nda",
+    "text": "All information shared by the company is confidential forever with no exceptions.",
+    "expected_risk_level": "high",
+    "required_categories": ["confidentiality"],
+    "min_findings": 1
+  },
+  {
+    "id": "vendor_unlimited_liability",
+    "contract_type": "vendor",
+    "text": "The vendor has unlimited liability for all losses including indirect and consequential losses.",
+    "expected_risk_level": "high",
+    "required_categories": ["liability"],
+    "min_findings": 1
+  },
+  {
+    "id": "loan_blank_cheque",
+    "contract_type": "loan",
+    "text": "The borrower shall provide a blank cheque as security.",
+    "expected_risk_level": "high",
+    "required_categories": ["security"],
+    "min_findings": 1
+  }
+]

@@ -165,6 +165,12 @@ python -m pip install -e ".[dev]"
 python -m pytest
 ```
 
+Golden demo regression check:
+
+```powershell
+python scripts\evaluate_golden_reports.py
+```
+
 ## MVP Scope
 
 The first useful version supports six demo contract types:
