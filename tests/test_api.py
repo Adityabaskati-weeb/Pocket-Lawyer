@@ -39,6 +39,11 @@ def test_root_serves_web_app() -> None:
     assert "luxury-dock" in html
     assert "proof-grid" in html
     assert "Drop A Contract File" in html
+    assert "File Readiness" in html
+    assert 'id="upload-status"' in html
+    assert 'id="upload-status-title"' in html
+    assert "renderUploadStatus" in html
+    assert "formatFileSize" in html
     assert "Initializing Sequence" not in html
     assert "Know the traps before ink dries." not in html
     assert "From dense clause to confident next move." not in html

@@ -609,6 +609,120 @@
         line-height: 1.45;
       }
 
+      .upload-status {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 12px;
+        align-items: start;
+        margin-top: 12px;
+        border: 1px solid rgba(8, 17, 31, 0.12);
+        border-radius: 24px;
+        padding: 14px;
+        background:
+          linear-gradient(135deg, rgba(255, 253, 248, 0.9), rgba(236, 253, 245, 0.58)),
+          rgba(255, 255, 255, 0.74);
+        box-shadow: 0 14px 34px rgba(8, 17, 31, 0.07);
+      }
+
+      .upload-status.ready {
+        border-color: rgba(16, 185, 129, 0.34);
+      }
+
+      .upload-status.warning {
+        border-color: rgba(242, 184, 75, 0.46);
+        background:
+          linear-gradient(135deg, rgba(255, 251, 235, 0.88), rgba(255, 247, 237, 0.62)),
+          rgba(255, 255, 255, 0.76);
+      }
+
+      .upload-status.error {
+        border-color: rgba(239, 68, 68, 0.36);
+        background:
+          linear-gradient(135deg, rgba(254, 242, 242, 0.88), rgba(255, 247, 237, 0.62)),
+          rgba(255, 255, 255, 0.78);
+      }
+
+      .upload-status.loading {
+        border-color: rgba(20, 184, 166, 0.38);
+      }
+
+      .upload-status-dot {
+        width: 12px;
+        height: 12px;
+        margin-top: 5px;
+        border-radius: 999px;
+        background: #94a3b8;
+        box-shadow: 0 0 0 6px rgba(148, 163, 184, 0.13);
+      }
+
+      .upload-status.ready .upload-status-dot {
+        background: var(--success);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.12), 0 0 18px rgba(16, 185, 129, 0.26);
+      }
+
+      .upload-status.warning .upload-status-dot {
+        background: var(--warning);
+        box-shadow: 0 0 0 6px rgba(242, 184, 75, 0.16), 0 0 18px rgba(242, 184, 75, 0.26);
+      }
+
+      .upload-status.error .upload-status-dot {
+        background: var(--critical);
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.14), 0 0 18px rgba(239, 68, 68, 0.22);
+      }
+
+      .upload-status.loading .upload-status-dot {
+        background: var(--accent);
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
+      .upload-status-copy {
+        min-width: 0;
+      }
+
+      .upload-status-title {
+        margin: 0;
+        color: var(--primary);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .upload-status-message {
+        margin: 5px 0 0;
+        color: #334155;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .upload-status.error .upload-status-message {
+        color: #7f1d1d;
+      }
+
+      .upload-status-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .upload-status-meta span {
+        max-width: 100%;
+        overflow: hidden;
+        border: 1px solid rgba(8, 17, 31, 0.1);
+        border-radius: 999px;
+        padding: 5px 8px;
+        color: var(--muted);
+        background: rgba(255, 255, 255, 0.7);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 800;
+        text-overflow: ellipsis;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
       input[type="file"] {
         grid-column: 1 / -1;
         min-height: 40px;
@@ -1636,6 +1750,18 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
               </label>
               <input id="contract-file" type="file" accept=".txt,.text,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff">
             </div>
+            <section id="upload-status" class="upload-status idle" aria-labelledby="upload-status-title" aria-live="polite" role="status">
+              <span class="upload-status-dot" aria-hidden="true"></span>
+              <div class="upload-status-copy">
+                <p id="upload-status-title" class="upload-status-title">File Readiness</p>
+                <p id="upload-status-message" class="upload-status-message">No file selected. Paste text or choose a contract file.</p>
+                <div id="upload-status-meta" class="upload-status-meta" aria-label="Selected file details">
+                  <span>TXT/MD direct</span>
+                  <span>Readable PDF direct</span>
+                  <span>DOCX/image need Docling</span>
+                </div>
+              </div>
+            </section>
             <div class="actions">
               <button id="scan-button" type="submit" data-ripple>Scan Contract</button>
               <button id="sample-button" type="button" data-ripple>Use Sample</button>
@@ -1775,6 +1901,10 @@ The EMI schedule is attached as Annexure A.`,
       const textarea = document.querySelector("#contract-text");
       const fileInput = document.querySelector("#contract-file");
       const uploadZone = document.querySelector("#upload-zone");
+      const uploadStatus = document.querySelector("#upload-status");
+      const uploadStatusTitle = document.querySelector("#upload-status-title");
+      const uploadStatusMessage = document.querySelector("#upload-status-message");
+      const uploadStatusMeta = document.querySelector("#upload-status-meta");
       const scanButton = document.querySelector("#scan-button");
       const sampleButton = document.querySelector("#sample-button");
       const statusPill = document.querySelector("#status-pill");
@@ -1797,18 +1927,47 @@ The EMI schedule is attached as Annexure A.`,
       const refreshHistory = document.querySelector("#refresh-history");
       const historyList = document.querySelector("#history-list");
       const SCORE_CIRCUMFERENCE = 326.73;
+      const DIRECT_TEXT_EXTENSIONS = new Set(["txt", "text", "md"]);
+      const PDF_EXTENSIONS = new Set(["pdf"]);
+      const DOCLING_EXTENSIONS = new Set(["docx", "png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"]);
+      const FILE_TYPE_LABELS = {
+        txt: "Plain text",
+        text: "Plain text",
+        md: "Markdown",
+        pdf: "PDF",
+        docx: "Word document",
+        png: "PNG image",
+        jpg: "JPG image",
+        jpeg: "JPEG image",
+        webp: "WebP image",
+        bmp: "BMP image",
+        tif: "TIFF image",
+        tiff: "TIFF image",
+      };
 
       syncContractPills();
       bindRipples();
 
       sampleButton.addEventListener("click", () => {
         textarea.value = SAMPLE_TEXT[contractType.value] || SAMPLE_TEXT.employment;
+        if (!fileInput.files[0]) {
+          renderUploadStatus(null);
+        }
         textarea.focus();
       });
 
       contractType.addEventListener("change", () => {
         syncContractPills();
         textarea.value = SAMPLE_TEXT[contractType.value] || SAMPLE_TEXT.employment;
+        if (!fileInput.files[0]) {
+          renderUploadStatus(null);
+        }
+      });
+
+      textarea.addEventListener("input", () => {
+        if (!fileInput.files[0] && textarea.value.trim()) {
+          renderUploadStatus(null);
+        }
       });
 
       contractPills.forEach((pill) => {
@@ -1816,6 +1975,10 @@ The EMI schedule is attached as Annexure A.`,
           contractType.value = pill.dataset.contractType;
           contractType.dispatchEvent(new Event("change"));
         });
+      });
+
+      fileInput.addEventListener("change", () => {
+        renderUploadStatus(fileInput.files[0] || null);
       });
 
       ["dragenter", "dragover"].forEach((eventName) => {
@@ -1830,6 +1993,7 @@ The EMI schedule is attached as Annexure A.`,
         uploadZone.classList.remove("drag-over");
         if (event.dataTransfer.files.length) {
           fileInput.files = event.dataTransfer.files;
+          renderUploadStatus(fileInput.files[0] || null);
         }
       });
 
@@ -1844,6 +2008,19 @@ The EMI schedule is attached as Annexure A.`,
         const file = fileInput.files[0];
         if (!text && !file) {
           setStatus("Paste Contract Text First", "error");
+          renderUploadStatus(null, {
+            level: "error",
+            title: "No Contract Input",
+            message: "Paste contract text or choose a supported file before scanning.",
+          });
+          setScanButtonState("idle");
+          return;
+        }
+
+        if (file && !getFileReadiness(file).supported) {
+          renderUploadStatus(file);
+          setStatus("Unsupported File", "error");
+          setScanButtonState("idle");
           return;
         }
 
@@ -1851,9 +2028,24 @@ The EMI schedule is attached as Annexure A.`,
         setScanButtonState("loading");
 
         try {
-          const body = file
-            ? await buildFilePayload(file)
-            : { text, source_name: "Pasted contract", contract_type: contractType.value };
+          let body;
+          if (file) {
+            renderUploadStatus(file, {
+              level: "loading",
+              title: "Reading File",
+              message: "Encoding the selected file locally before upload.",
+            });
+            setStatus("Reading File...", "loading");
+            body = await buildFilePayload(file);
+            renderUploadStatus(file, {
+              level: "loading",
+              title: "Extracting Text",
+              message: "Uploading the file for text extraction and risk analysis.",
+            });
+            setStatus("Extracting...", "loading");
+          } else {
+            body = { text, source_name: "Pasted contract", contract_type: contractType.value };
+          }
 
           const response = await fetch("/contracts", {
             method: "POST",
@@ -1867,10 +2059,24 @@ The EMI schedule is attached as Annexure A.`,
           }
 
           renderReport(payload.report);
+          if (file) {
+            renderUploadStatus(file, {
+              level: "ready",
+              title: "Analyzed",
+              message: uploadSuccessMessage(payload.report),
+            });
+          }
           setStatus("Saved", payload.report.overall_risk_level);
           setScanButtonState("success");
           await loadHistory();
         } catch (error) {
+          if (file) {
+            renderUploadStatus(file, {
+              level: "error",
+              title: "Upload Failed",
+              message: error.message || "Unable to extract or analyze this file.",
+            });
+          }
           setStatus("Scan Failed", "error");
           setScanButtonState("idle");
           emptyState.classList.remove("hidden");
@@ -2065,6 +2271,110 @@ The EMI schedule is attached as Annexure A.`,
         }
 
         window.requestAnimationFrame(tick);
+      }
+
+      function renderUploadStatus(file, override = {}) {
+        const readiness = getFileReadiness(file);
+        const state = { ...readiness, ...override };
+
+        uploadStatus.className = `upload-status ${state.level}`;
+        uploadStatusTitle.textContent = state.title;
+        uploadStatusMessage.textContent = state.message;
+        renderUploadMeta(state.meta || readiness.meta || []);
+      }
+
+      function renderUploadMeta(items) {
+        uploadStatusMeta.replaceChildren();
+        items.forEach((item) => {
+          const chip = document.createElement("span");
+          chip.textContent = item;
+          uploadStatusMeta.append(chip);
+        });
+      }
+
+      function getFileReadiness(file) {
+        if (!file) {
+          return {
+            level: "idle",
+            title: "File Readiness",
+            message: "No file selected. Paste text or choose a contract file.",
+            meta: ["TXT/MD direct", "Readable PDF direct", "DOCX/image need Docling"],
+            supported: true,
+          };
+        }
+
+        const extension = getFileExtension(file);
+        const meta = [file.name, formatFileSize(file.size), getFileTypeLabel(extension)];
+
+        if (DIRECT_TEXT_EXTENSIONS.has(extension)) {
+          return {
+            level: "ready",
+            title: "Ready For Direct Extraction",
+            message: "Text files can be read directly in this local prototype.",
+            meta,
+            supported: true,
+          };
+        }
+
+        if (PDF_EXTENSIONS.has(extension)) {
+          return {
+            level: "ready",
+            title: "PDF Ready",
+            message: "Readable PDFs work directly. Scanned PDFs need optional Docling/OCR setup.",
+            meta,
+            supported: true,
+          };
+        }
+
+        if (DOCLING_EXTENSIONS.has(extension)) {
+          return {
+            level: "warning",
+            title: "Docling/OCR Required",
+            message: "Prototype path: DOCX and image intake need the optional local Docling/OCR backend.",
+            meta,
+            supported: true,
+          };
+        }
+
+        return {
+          level: "error",
+          title: "Unsupported File",
+          message: "Choose TXT, Markdown, readable PDF, DOCX, or an image file.",
+          meta,
+          supported: false,
+        };
+      }
+
+      function getFileExtension(file) {
+        const filename = String(file?.name || "").toLowerCase();
+        const match = filename.match(/\.([a-z0-9]+)$/);
+        return match ? match[1] : "";
+      }
+
+      function getFileTypeLabel(extension) {
+        return FILE_TYPE_LABELS[extension] || "Unsupported file";
+      }
+
+      function formatFileSize(bytes) {
+        const value = Number(bytes) || 0;
+        if (value < 1024) return `${value} B`;
+
+        const units = ["KB", "MB", "GB"];
+        let size = value / 1024;
+        let unitIndex = 0;
+        while (size >= 1024 && unitIndex < units.length - 1) {
+          size /= 1024;
+          unitIndex += 1;
+        }
+
+        const displaySize = size >= 10 ? Math.round(size) : size.toFixed(1);
+        return `${displaySize} ${units[unitIndex]}`;
+      }
+
+      function uploadSuccessMessage(report) {
+        const findings = Array.isArray(report.findings) ? report.findings.length : 0;
+        const plural = findings === 1 ? "" : "s";
+        return `Analyzed ${findings} finding${plural} from ${report.source_backend || "uploaded file"}.`;
       }
 
       async function buildFilePayload(file) {
