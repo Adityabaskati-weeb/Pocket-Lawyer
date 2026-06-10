@@ -44,6 +44,12 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
             self._send_json({"contracts": self.server.report_store.list_reports()})
             return
 
+        if path == "/review-requests":
+            self._send_json(
+                {"review_requests": self.server.report_store.list_review_requests()}
+            )
+            return
+
         if path.startswith("/contracts/"):
             self._handle_contract_get(path.removeprefix("/contracts/"))
             return
@@ -75,6 +81,10 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
 
         if path == "/contracts":
             self._handle_contract_create()
+            return
+
+        if path.startswith("/contracts/") and path.endswith("/review-request"):
+            self._handle_review_request_create(path)
             return
 
         self._send_json({"error": "Not found"}, status=HTTPStatus.NOT_FOUND)
@@ -160,6 +170,32 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
 
         self._send_json(record)
 
+    def _handle_review_request_create(self, path: str) -> None:
+        parts = path.strip("/").split("/")
+        if len(parts) != 3 or parts[0] != "contracts" or parts[2] != "review-request":
+            self._send_json({"error": "Not found"}, status=HTTPStatus.NOT_FOUND)
+            return
+
+        try:
+            payload = self._read_optional_json_body()
+        except ValueError as exc:
+            self._send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
+            return
+
+        review_request = self.server.report_store.create_review_request(
+            parts[1],
+            requester_email=payload.get("requester_email"),
+            note=payload.get("note"),
+        )
+        if review_request is None:
+            self._send_json({"error": "Report not found"}, status=HTTPStatus.NOT_FOUND)
+            return
+
+        self._send_json(
+            {"review_request": review_request},
+            status=HTTPStatus.CREATED,
+        )
+
     def log_message(self, format: str, *args: Any) -> None:
         return
 
@@ -180,6 +216,12 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
         if not isinstance(payload, dict):
             raise ValueError("Request body must be a JSON object.")
         return payload
+
+    def _read_optional_json_body(self) -> dict[str, Any]:
+        content_length = int(self.headers.get("Content-Length", "0"))
+        if content_length <= 0:
+            return {}
+        return self._read_json_body()
 
     def _send_json(
         self, payload: dict[str, Any], status: HTTPStatus = HTTPStatus.OK

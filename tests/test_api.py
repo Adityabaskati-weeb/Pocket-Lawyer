@@ -66,6 +66,9 @@ def test_root_serves_web_app() -> None:
     assert 'id="ai-review-status"' in html
     assert "renderAiReview" in html
     assert "formatAnalysisMethod" in html
+    assert "Lawyer Review Request" in html
+    assert 'id="request-review"' in html
+    assert "createReviewRequest" in html
     assert "Founder offer letter" in html
     assert "function renderReport" in html
     assert "/static/app.js" not in html
@@ -157,6 +160,52 @@ def test_contract_create_persists_report_and_lists_history() -> None:
     assert created["report"]["overall_risk_level"] == "high"
     assert history["contracts"][0]["id"] == report_id
     assert saved["report"]["findings"][0]["category"] == "non_compete"
+
+
+def test_contract_review_request_create_and_list() -> None:
+    store_path = RUNTIME_DIR / "api_review_requests.json"
+
+    with running_test_server(store_path) as base_url:
+        create_request = request.Request(
+            f"{base_url}/contracts",
+            data=json.dumps(
+                {
+                    "text": "The employee agrees to a non-compete for 24 months.",
+                    "source_name": "Offer letter",
+                }
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with request.urlopen(create_request, timeout=5) as response:
+            created = json.loads(response.read().decode("utf-8"))
+
+        report_id = created["record"]["id"]
+        review_request = request.Request(
+            f"{base_url}/contracts/{report_id}/review-request",
+            data=json.dumps(
+                {
+                    "requester_email": "founder@example.com",
+                    "note": "Need review before signing.",
+                }
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with request.urlopen(review_request, timeout=5) as response:
+            review_payload = json.loads(response.read().decode("utf-8"))
+            review_status = response.status
+
+        with request.urlopen(f"{base_url}/review-requests", timeout=5) as response:
+            listed = json.loads(response.read().decode("utf-8"))
+
+    assert review_status == 201
+    assert review_payload["review_request"]["report_id"] == report_id
+    assert review_payload["review_request"]["source_name"] == "Offer letter"
+    assert review_payload["review_request"]["status"] == "requested"
+    assert review_payload["review_request"]["priority"] == "high"
+    assert review_payload["review_request"]["requester_email"] == "founder@example.com"
+    assert listed["review_requests"][0]["id"] == review_payload["review_request"]["id"]
 
 
 def test_contract_create_uses_selected_contract_type() -> None:
@@ -260,6 +309,11 @@ class running_test_server:
         self._restore_llm_env()
         if self.store_path.exists():
             safe_unlink(self.store_path)
+        review_path = self.store_path.with_name(
+            f"{self.store_path.stem}_review_requests.json"
+        )
+        if review_path.exists():
+            safe_unlink(review_path)
         safe_rmtree(self.uploads_root)
 
     def _suspend_llm_env(self) -> None:

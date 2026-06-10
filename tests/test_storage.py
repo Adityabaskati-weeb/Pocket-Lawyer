@@ -51,6 +51,52 @@ def test_report_store_saves_lists_gets_and_deletes_report() -> None:
         safe_unlink(store_path)
 
 
+def test_report_store_creates_local_review_request_without_source_text() -> None:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    store_path = RUNTIME_DIR / "storage_review_requests.json"
+    if store_path.exists():
+        safe_unlink(store_path)
+    review_path = RUNTIME_DIR / "storage_review_requests_review_requests.json"
+    if review_path.exists():
+        safe_unlink(review_path)
+
+    store = ReportStore(store_path)
+    report = analyze_contract(
+        "The employee agrees to a non-compete for 24 months after employment."
+    )
+    record = store.save_report(
+        report,
+        source_text="The employee agrees to a non-compete for 24 months after employment.",
+        source_name="Offer letter",
+    )
+
+    review_request = store.create_review_request(
+        record["id"],
+        requester_email="founder@example.com",
+        note="Need a qualified lawyer to review before signing.",
+    )
+    duplicate_request = store.create_review_request(record["id"])
+    review_requests = store.list_review_requests()
+
+    assert review_request is not None
+    assert duplicate_request is not None
+    assert duplicate_request["id"] == review_request["id"]
+    assert review_requests[0]["id"] == review_request["id"]
+    assert review_request["report_id"] == record["id"]
+    assert review_request["status"] == "requested"
+    assert review_request["priority"] == "high"
+    assert review_request["source_name"] == "Offer letter"
+    assert review_request["requester_email"] == "founder@example.com"
+    assert "Post-employment non-compete" in review_request["finding_titles"]
+    assert "source_text" not in review_request
+    assert "non-compete" in review_request["lawyer_brief"].lower()
+
+    if store_path.exists():
+        safe_unlink(store_path)
+    if review_path.exists():
+        safe_unlink(review_path)
+
+
 def test_report_store_supports_sqlite_and_uploaded_artifacts() -> None:
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
     store_path = RUNTIME_DIR / "storage_reports.sqlite"

@@ -1031,6 +1031,85 @@
         line-height: 1.5;
       }
 
+      .lawyer-review-card {
+        display: grid;
+        gap: 10px;
+        margin: var(--space-2) 0;
+        border: 1px solid rgba(120, 83, 28, 0.22);
+        border-radius: 24px;
+        padding: var(--space-2);
+        background:
+          radial-gradient(circle at 92% 12%, rgba(242, 184, 75, 0.18), transparent 34%),
+          linear-gradient(135deg, rgba(255, 251, 235, 0.78), rgba(255, 255, 255, 0.84));
+        box-shadow: 0 12px 30px rgba(120, 83, 28, 0.08);
+      }
+
+      .lawyer-review-card.ready {
+        border-color: rgba(242, 184, 75, 0.4);
+      }
+
+      .lawyer-review-card.requested {
+        border-color: rgba(16, 185, 129, 0.36);
+        background:
+          radial-gradient(circle at 92% 12%, rgba(16, 185, 129, 0.16), transparent 34%),
+          linear-gradient(135deg, rgba(236, 253, 245, 0.82), rgba(255, 255, 255, 0.86));
+      }
+
+      .lawyer-review-card.error {
+        border-color: rgba(239, 68, 68, 0.34);
+        background:
+          linear-gradient(135deg, rgba(254, 242, 242, 0.84), rgba(255, 255, 255, 0.88));
+      }
+
+      .lawyer-review-card.disabled {
+        border-color: var(--line);
+        background: rgba(255, 247, 232, 0.5);
+      }
+
+      .lawyer-review-topline {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-1);
+      }
+
+      .lawyer-review-label {
+        margin: 0;
+        color: var(--primary);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .lawyer-review-copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      #request-review {
+        justify-self: start;
+        min-height: 38px;
+        border: 0;
+        color: #111827;
+        background: linear-gradient(135deg, var(--warning), #fef3c7);
+        box-shadow: 0 12px 26px rgba(120, 83, 28, 0.14);
+      }
+
+      #request-review:disabled {
+        cursor: not-allowed;
+        opacity: 0.58;
+        box-shadow: none;
+      }
+
+      #request-review.loading {
+        pointer-events: none;
+        animation: pulse-glow 1.2s ease-in-out infinite;
+      }
+
       .finding-meta {
         display: flex;
         flex-wrap: wrap;
@@ -1804,6 +1883,15 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
                 <p id="ai-review-copy" class="ai-review-copy">Rules and playbooks produced this report. Local LLM review can be enabled for the funding demo.</p>
               </section>
 
+              <section id="lawyer-review-card" class="lawyer-review-card disabled" aria-labelledby="lawyer-review-title" aria-live="polite">
+                <div class="lawyer-review-topline">
+                  <p id="lawyer-review-title" class="lawyer-review-label">Lawyer Review Request</p>
+                  <span id="lawyer-review-status" class="status-pill disabled">No report</span>
+                </div>
+                <p id="lawyer-review-copy" class="lawyer-review-copy">Scan or open a saved report, then create a local handoff request for qualified lawyer review.</p>
+                <button id="request-review" type="button" disabled data-ripple>Request Lawyer Review</button>
+              </section>
+
               <div class="finding-counts" aria-label="Risk finding breakdown">
                 <span class="count-card red-card"><i aria-hidden="true">!</i><strong id="red-count">0</strong><em>Red</em></span>
                 <span class="count-card yellow-card"><i aria-hidden="true">?</i><strong id="yellow-count">0</strong><em>Yellow</em></span>
@@ -1917,6 +2005,10 @@ The EMI schedule is attached as Annexure A.`,
       const aiReviewCard = document.querySelector("#ai-review-card");
       const aiReviewStatus = document.querySelector("#ai-review-status");
       const aiReviewCopy = document.querySelector("#ai-review-copy");
+      const lawyerReviewCard = document.querySelector("#lawyer-review-card");
+      const lawyerReviewStatus = document.querySelector("#lawyer-review-status");
+      const lawyerReviewCopy = document.querySelector("#lawyer-review-copy");
+      const requestReview = document.querySelector("#request-review");
       const redCount = document.querySelector("#red-count");
       const yellowCount = document.querySelector("#yellow-count");
       const greenCount = document.querySelector("#green-count");
@@ -1927,6 +2019,8 @@ The EMI schedule is attached as Annexure A.`,
       const refreshHistory = document.querySelector("#refresh-history");
       const historyList = document.querySelector("#history-list");
       const SCORE_CIRCUMFERENCE = 326.73;
+      let activeReportId = "";
+      let activeReport = null;
       const DIRECT_TEXT_EXTENSIONS = new Set(["txt", "text", "md"]);
       const PDF_EXTENSIONS = new Set(["pdf"]);
       const DOCLING_EXTENSIONS = new Set(["docx", "png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"]);
@@ -2058,6 +2152,8 @@ The EMI schedule is attached as Annexure A.`,
             throw new Error(payload.error || "Unable to analyze contract.");
           }
 
+          activeReportId = payload.record?.id || "";
+          activeReport = payload.report;
           renderReport(payload.report);
           if (file) {
             renderUploadStatus(file, {
@@ -2106,6 +2202,8 @@ The EMI schedule is attached as Annexure A.`,
         }, 2000);
       });
 
+      requestReview.addEventListener("click", createReviewRequest);
+
       loadHistory();
 
       function renderReport(report) {
@@ -2116,6 +2214,7 @@ The EMI schedule is attached as Annexure A.`,
         animateScore(report.overall_risk_score, report.overall_risk_level);
         summary.textContent = report.summary;
         renderAiReview(report);
+        renderLawyerReview(report);
         negotiationScript.textContent = report.negotiation_script;
         disclaimer.textContent = report.disclaimer;
 
@@ -2191,6 +2290,80 @@ The EMI schedule is attached as Annexure A.`,
         }
 
         aiReviewCopy.textContent = "Rules and playbooks produced this report. Enable local Ollama for the funding demo hybrid review.";
+      }
+
+      function renderLawyerReview(report) {
+        if (!report || !activeReportId) {
+          activeReport = null;
+          lawyerReviewCard.className = "lawyer-review-card disabled";
+          lawyerReviewStatus.className = "status-pill disabled";
+          lawyerReviewStatus.textContent = "No report";
+          lawyerReviewCopy.textContent = "Scan or open a saved report, then create a local handoff request for qualified lawyer review.";
+          requestReview.disabled = true;
+          requestReview.classList.remove("loading");
+          requestReview.textContent = "Request Lawyer Review";
+          return;
+        }
+
+        activeReport = report;
+        const counts = countFindings(report.findings || []);
+        const shouldEscalate = report.overall_risk_level === "high" || counts.red > 0 || report.analysis_status === "uncertain";
+        lawyerReviewCard.className = "lawyer-review-card ready";
+        lawyerReviewStatus.className = `status-pill ${shouldEscalate ? "high" : "medium"}`;
+        lawyerReviewStatus.textContent = shouldEscalate ? "Recommended" : "Optional";
+        lawyerReviewCopy.textContent = shouldEscalate
+          ? "High-risk or uncertain findings are ready for a local lawyer handoff request."
+          : "Create a local lawyer handoff if the user wants human review before signing.";
+        requestReview.disabled = false;
+        requestReview.classList.remove("loading");
+        requestReview.textContent = "Request Lawyer Review";
+      }
+
+      async function createReviewRequest() {
+        if (!activeReportId || requestReview.disabled) {
+          return;
+        }
+
+        requestReview.disabled = true;
+        requestReview.classList.add("loading");
+        requestReview.textContent = "Creating Request...";
+        lawyerReviewCard.className = "lawyer-review-card ready";
+        lawyerReviewStatus.className = "status-pill loading";
+        lawyerReviewStatus.textContent = "Creating";
+        lawyerReviewCopy.textContent = "Creating a local review request from this saved report.";
+
+        try {
+          const response = await fetch(`/contracts/${activeReportId}/review-request`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              note: "Local browser demo request for qualified lawyer review.",
+            }),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "Unable to create review request.");
+          }
+          renderReviewRequestCreated(payload.review_request);
+        } catch (error) {
+          lawyerReviewCard.className = "lawyer-review-card error";
+          lawyerReviewStatus.className = "status-pill error";
+          lawyerReviewStatus.textContent = "Failed";
+          lawyerReviewCopy.textContent = error.message || "Unable to create local review request.";
+          requestReview.disabled = false;
+          requestReview.classList.remove("loading");
+          requestReview.textContent = "Retry Review Request";
+        }
+      }
+
+      function renderReviewRequestCreated(reviewRequest) {
+        lawyerReviewCard.className = "lawyer-review-card requested";
+        lawyerReviewStatus.className = "status-pill green";
+        lawyerReviewStatus.textContent = "Requested";
+        lawyerReviewCopy.textContent = `Local request ${reviewRequest.id.slice(0, 8)} saved with ${reviewRequest.priority} priority. Use this as the lawyer handoff brief.`;
+        requestReview.classList.remove("loading");
+        requestReview.disabled = true;
+        requestReview.textContent = "Request Saved";
       }
 
       function formatAnalysisMethod(method) {
@@ -2473,6 +2646,8 @@ The EMI schedule is attached as Annexure A.`,
           return;
         }
 
+        activeReportId = payload.id || id;
+        activeReport = payload.report;
         renderReport(payload.report);
         setStatus("Loaded", payload.overall_risk_level);
       }
@@ -2497,6 +2672,8 @@ The EMI schedule is attached as Annexure A.`,
           const payload = await response.json();
           if (!response.ok) throw new Error(payload.error || "Unable to analyze contract.");
 
+          activeReportId = payload.record?.id || "";
+          activeReport = payload.report;
           renderReport(payload.report);
           setStatus("Saved", payload.report.overall_risk_level);
           setScanButtonState("success");

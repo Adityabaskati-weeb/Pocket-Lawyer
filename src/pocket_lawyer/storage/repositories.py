@@ -15,6 +15,7 @@ from pocket_lawyer.storage.records import (
     SQLiteReportRepository,
     resolve_store_backend,
 )
+from pocket_lawyer.storage.review_requests import build_review_request_repository
 
 
 DEFAULT_STORE_PATH = get_settings().store_path
@@ -37,6 +38,10 @@ class ReportStore:
             else active_settings.uploads_path
         )
         self._records = _build_record_repository(
+            active_settings.store_backend,
+            self.path,
+        )
+        self._review_requests = build_review_request_repository(
             active_settings.store_backend,
             self.path,
         )
@@ -94,6 +99,31 @@ class ReportStore:
             self._artifacts.delete_artifact(record.get("source_artifact"))
         return deleted
 
+    def create_review_request(
+        self,
+        report_id: str,
+        requester_email: str | None = None,
+        note: str | None = None,
+    ) -> dict[str, Any] | None:
+        record = self._records.get_record(report_id)
+        if record is None:
+            return None
+
+        existing = self._review_requests.get_request_by_report_id(report_id)
+        if existing is not None:
+            return existing
+
+        request_record = _review_request_from_report(
+            record,
+            requester_email=requester_email,
+            note=note,
+        )
+        self._review_requests.save_request(request_record)
+        return request_record
+
+    def list_review_requests(self) -> list[dict[str, Any]]:
+        return self._review_requests.list_requests()
+
     def _summary(self, record: dict[str, Any]) -> dict[str, Any]:
         return {
             "id": record["id"],
@@ -135,3 +165,69 @@ def _risk_counts(findings: list[ClauseFinding]) -> dict[str, int]:
     for finding in findings:
         counts[finding.risk_level] += 1
     return counts
+
+
+def _review_request_from_report(
+    record: dict[str, Any],
+    *,
+    requester_email: str | None,
+    note: str | None,
+) -> dict[str, Any]:
+    report = record["report"]
+    finding_titles = _finding_titles(report)
+    return {
+        "id": uuid4().hex,
+        "created_at": datetime.now(UTC).isoformat(),
+        "report_id": record["id"],
+        "status": "requested",
+        "priority": _review_priority(record),
+        "source_name": record["source_name"],
+        "contract_type": record["contract_type"],
+        "overall_risk_level": record["overall_risk_level"],
+        "overall_risk_score": record["overall_risk_score"],
+        "requester_email": _clean_optional_string(requester_email, max_length=254),
+        "note": _clean_optional_string(note, max_length=1200),
+        "report_summary": record["summary"],
+        "finding_titles": finding_titles,
+        "lawyer_brief": _lawyer_brief(record, finding_titles),
+    }
+
+
+def _review_priority(record: dict[str, Any]) -> str:
+    counts = record.get("counts") or {}
+    if record["overall_risk_level"] == "high" or int(counts.get("red", 0)) > 0:
+        return "high"
+    if record["overall_risk_level"] == "medium" or int(counts.get("yellow", 0)) > 0:
+        return "medium"
+    return "normal"
+
+
+def _finding_titles(report: dict[str, Any]) -> list[str]:
+    findings = report.get("findings", [])
+    if not isinstance(findings, list):
+        return []
+    titles: list[str] = []
+    for finding in findings[:6]:
+        if isinstance(finding, dict) and isinstance(finding.get("title"), str):
+            titles.append(finding["title"])
+    return titles
+
+
+def _lawyer_brief(record: dict[str, Any], finding_titles: list[str]) -> str:
+    findings = ", ".join(finding_titles) if finding_titles else "No flagged findings"
+    return (
+        f"Local lawyer review request for {record['source_name']}. "
+        f"Contract type: {record['contract_type']}. "
+        f"Risk: {record['overall_risk_level']} ({record['overall_risk_score']}/100). "
+        f"Key findings: {findings}. "
+        "Use the saved report for evidence spans, suggested wording, and negotiation context."
+    )
+
+
+def _clean_optional_string(value: str | None, *, max_length: int) -> str | None:
+    if not isinstance(value, str):
+        return None
+    cleaned = value.strip()
+    if not cleaned:
+        return None
+    return cleaned[:max_length]
