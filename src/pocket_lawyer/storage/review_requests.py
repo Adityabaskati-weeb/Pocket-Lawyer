@@ -16,6 +16,8 @@ class ReviewRequestRepository(Protocol):
 
     def get_request_by_report_id(self, report_id: str) -> dict[str, Any] | None: ...
 
+    def delete_requests_for_report(self, report_id: str) -> int: ...
+
 
 class JsonReviewRequestRepository:
     def __init__(self, path: Path) -> None:
@@ -34,6 +36,18 @@ class JsonReviewRequestRepository:
             if request_record["report_id"] == report_id:
                 return request_record
         return None
+
+    def delete_requests_for_report(self, report_id: str) -> int:
+        requests = self._load_requests()
+        kept = [
+            request_record
+            for request_record in requests
+            if request_record["report_id"] != report_id
+        ]
+        deleted_count = len(requests) - len(kept)
+        if deleted_count:
+            self._write_requests(kept)
+        return deleted_count
 
     def _load_requests(self) -> list[dict[str, Any]]:
         if not self.path.exists():
@@ -109,6 +123,14 @@ class SQLiteReviewRequestRepository:
         if row is None:
             return None
         return json.loads(row["payload_json"])
+
+    def delete_requests_for_report(self, report_id: str) -> int:
+        with closing(self._connect()) as connection, connection:
+            cursor = connection.execute(
+                "DELETE FROM review_requests WHERE report_id = ?",
+                (report_id,),
+            )
+            return cursor.rowcount
 
     def _ensure_schema(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)

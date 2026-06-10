@@ -97,6 +97,7 @@ class ReportStore:
         deleted = self._records.delete_record(report_id)
         if deleted:
             self._artifacts.delete_artifact(record.get("source_artifact"))
+            self._review_requests.delete_requests_for_report(report_id)
         return deleted
 
     def create_review_request(

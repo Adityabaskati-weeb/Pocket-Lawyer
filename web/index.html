@@ -1110,6 +1110,43 @@
         animation: pulse-glow 1.2s ease-in-out infinite;
       }
 
+      .vault-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        margin: var(--space-2) 0;
+        border: 1px dashed rgba(8, 17, 31, 0.16);
+        border-radius: 22px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.58);
+      }
+
+      .vault-actions span {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      #delete-report {
+        min-height: 38px;
+        color: #991b1b;
+        border-color: rgba(239, 68, 68, 0.28);
+        background: rgba(254, 242, 242, 0.86);
+      }
+
+      #delete-report:disabled {
+        cursor: not-allowed;
+        opacity: 0.54;
+      }
+
+      #delete-report.loading {
+        pointer-events: none;
+        color: #92400e;
+        border-color: rgba(245, 158, 11, 0.36);
+        background: rgba(255, 251, 235, 0.9);
+      }
+
       .finding-meta {
         display: flex;
         flex-wrap: wrap;
@@ -1892,6 +1929,11 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
                 <button id="request-review" type="button" disabled data-ripple>Request Lawyer Review</button>
               </section>
 
+              <div class="vault-actions" aria-label="Local vault controls">
+                <button id="delete-report" type="button" disabled data-ripple>Delete Saved Report</button>
+                <span>Removes this saved report, uploaded artifact, and any local review request from the demo vault.</span>
+              </div>
+
               <div class="finding-counts" aria-label="Risk finding breakdown">
                 <span class="count-card red-card"><i aria-hidden="true">!</i><strong id="red-count">0</strong><em>Red</em></span>
                 <span class="count-card yellow-card"><i aria-hidden="true">?</i><strong id="yellow-count">0</strong><em>Yellow</em></span>
@@ -2009,6 +2051,7 @@ The EMI schedule is attached as Annexure A.`,
       const lawyerReviewStatus = document.querySelector("#lawyer-review-status");
       const lawyerReviewCopy = document.querySelector("#lawyer-review-copy");
       const requestReview = document.querySelector("#request-review");
+      const deleteReport = document.querySelector("#delete-report");
       const redCount = document.querySelector("#red-count");
       const yellowCount = document.querySelector("#yellow-count");
       const greenCount = document.querySelector("#green-count");
@@ -2203,6 +2246,7 @@ The EMI schedule is attached as Annexure A.`,
       });
 
       requestReview.addEventListener("click", createReviewRequest);
+      deleteReport.addEventListener("click", deleteActiveReport);
 
       loadHistory();
 
@@ -2215,6 +2259,7 @@ The EMI schedule is attached as Annexure A.`,
         summary.textContent = report.summary;
         renderAiReview(report);
         renderLawyerReview(report);
+        renderVaultControls(Boolean(activeReportId));
         negotiationScript.textContent = report.negotiation_script;
         disclaimer.textContent = report.disclaimer;
 
@@ -2302,6 +2347,7 @@ The EMI schedule is attached as Annexure A.`,
           requestReview.disabled = true;
           requestReview.classList.remove("loading");
           requestReview.textContent = "Request Lawyer Review";
+          renderVaultControls(false);
           return;
         }
 
@@ -2317,6 +2363,12 @@ The EMI schedule is attached as Annexure A.`,
         requestReview.disabled = false;
         requestReview.classList.remove("loading");
         requestReview.textContent = "Request Lawyer Review";
+      }
+
+      function renderVaultControls(hasReport) {
+        deleteReport.disabled = !hasReport;
+        deleteReport.classList.remove("loading");
+        deleteReport.textContent = "Delete Saved Report";
       }
 
       async function createReviewRequest() {
@@ -2364,6 +2416,42 @@ The EMI schedule is attached as Annexure A.`,
         requestReview.classList.remove("loading");
         requestReview.disabled = true;
         requestReview.textContent = "Request Saved";
+      }
+
+      async function deleteActiveReport() {
+        if (!activeReportId || deleteReport.disabled) {
+          return;
+        }
+
+        const reportId = activeReportId;
+        deleteReport.disabled = true;
+        deleteReport.classList.add("loading");
+        deleteReport.textContent = "Deleting...";
+        setStatus("Deleting...", "loading");
+
+        try {
+          const response = await fetch(`/contracts/${reportId}`, {
+            method: "DELETE",
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            throw new Error(payload.error || "Unable to delete saved report.");
+          }
+
+          activeReportId = "";
+          activeReport = null;
+          reportContent.classList.add("hidden");
+          emptyState.classList.remove("hidden");
+          renderLawyerReview(null);
+          renderVaultControls(false);
+          setStatus("Deleted", "low");
+          await loadHistory();
+        } catch (error) {
+          deleteReport.disabled = false;
+          deleteReport.classList.remove("loading");
+          deleteReport.textContent = "Retry Delete";
+          setStatus("Delete Failed", "error");
+        }
       }
 
       function formatAnalysisMethod(method) {

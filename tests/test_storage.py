@@ -91,6 +91,11 @@ def test_report_store_creates_local_review_request_without_source_text() -> None
     assert "source_text" not in review_request
     assert "non-compete" in review_request["lawyer_brief"].lower()
 
+    deleted = store.delete_report(record["id"])
+
+    assert deleted is True
+    assert store.list_review_requests() == []
+
     if store_path.exists():
         safe_unlink(store_path)
     if review_path.exists():

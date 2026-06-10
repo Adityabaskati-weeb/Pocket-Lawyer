@@ -69,6 +69,9 @@ def test_root_serves_web_app() -> None:
     assert "Lawyer Review Request" in html
     assert 'id="request-review"' in html
     assert "createReviewRequest" in html
+    assert "Delete Saved Report" in html
+    assert 'id="delete-report"' in html
+    assert "deleteActiveReport" in html
     assert "Founder offer letter" in html
     assert "function renderReport" in html
     assert "/static/app.js" not in html
@@ -199,6 +202,16 @@ def test_contract_review_request_create_and_list() -> None:
         with request.urlopen(f"{base_url}/review-requests", timeout=5) as response:
             listed = json.loads(response.read().decode("utf-8"))
 
+        delete_request = request.Request(
+            f"{base_url}/contracts/{report_id}",
+            method="DELETE",
+        )
+        with request.urlopen(delete_request, timeout=5) as response:
+            deleted = json.loads(response.read().decode("utf-8"))
+
+        with request.urlopen(f"{base_url}/review-requests", timeout=5) as response:
+            listed_after_delete = json.loads(response.read().decode("utf-8"))
+
     assert review_status == 201
     assert review_payload["review_request"]["report_id"] == report_id
     assert review_payload["review_request"]["source_name"] == "Offer letter"
@@ -206,6 +219,8 @@ def test_contract_review_request_create_and_list() -> None:
     assert review_payload["review_request"]["priority"] == "high"
     assert review_payload["review_request"]["requester_email"] == "founder@example.com"
     assert listed["review_requests"][0]["id"] == review_payload["review_request"]["id"]
+    assert deleted == {"deleted": True, "id": report_id}
+    assert listed_after_delete["review_requests"] == []
 
 
 def test_contract_create_uses_selected_contract_type() -> None:
