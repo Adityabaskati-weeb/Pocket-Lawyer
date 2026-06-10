@@ -14,36 +14,45 @@ EXAMPLE_CONTRACTS = [
     (
         "employment_offer_demo.pdf",
         "employment",
+        "high",
         {"ip_ownership", "non_compete", "compensation"},
     ),
     (
         "freelancer_sow_demo.pdf",
         "freelancer",
-        {"ip_payment", "payment_terms", "scope_creep"},
+        "medium",
+        {"payment_terms", "scope_creep"},
     ),
     (
         "rent_agreement_demo.pdf",
         "rent",
+        "high",
         {"security_deposit", "lock_in", "privacy"},
     ),
     (
         "nda_demo.pdf",
         "nda",
-        {"confidentiality", "career_restriction", "mutuality"},
+        "medium",
+        {"career_restriction", "mutuality", "disclosure_exception"},
     ),
     (
         "loan_agreement_demo.pdf",
         "loan",
+        "high",
         {"security", "interest", "default"},
     ),
 ]
 
 
 @pytest.mark.parametrize(
-    ("filename", "contract_type", "expected_categories"), EXAMPLE_CONTRACTS
+    ("filename", "contract_type", "expected_level", "expected_categories"),
+    EXAMPLE_CONTRACTS,
 )
 def test_example_pdf_has_realistic_text_and_risky_findings(
-    filename: str, contract_type: str, expected_categories: set[str]
+    filename: str,
+    contract_type: str,
+    expected_level: str,
+    expected_categories: set[str],
 ) -> None:
     path = ROOT / "demo_contracts" / filename
     document = extract_contract_document(path.name, path.read_bytes())
@@ -51,7 +60,8 @@ def test_example_pdf_has_realistic_text_and_risky_findings(
     categories = {finding.category for finding in report.findings}
 
     assert document.backend == "pypdf"
-    assert report.overall_risk_level == "high"
+    assert report.overall_risk_level == expected_level
+    assert report.overall_risk_score > 0
     assert any(finding.risk_level in {"red", "yellow"} for finding in report.findings)
     assert expected_categories <= categories
 

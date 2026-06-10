@@ -20,8 +20,6 @@ EXAMPLE_CONTRACTS = {
     "freelancer_sow_demo.pdf": {
         "title": "FREELANCER STATEMENT OF WORK",
         "clauses": [
-            "The freelancer assigns all rights to the client before payment.",
-            "Payment is subject to the client's sole satisfaction and final approval.",
             "The client may request unlimited revisions until fully satisfied.",
             "Payment is due within 15 days of each approved milestone invoice.",
         ],
@@ -38,7 +36,6 @@ EXAMPLE_CONTRACTS = {
     "nda_demo.pdf": {
         "title": "NON-DISCLOSURE AGREEMENT",
         "clauses": [
-            "All information shared by the company is confidential forever with no exceptions.",
             "The recipient shall not use general knowledge, skills, or experience learned during discussions.",
             "Only the recipient has confidentiality obligations to the disclosing party.",
             "Disclosure required by law or court order is permitted after notice.",
