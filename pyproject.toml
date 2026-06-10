@@ -16,12 +16,18 @@ dependencies = [
 dev = [
     "pytest>=8.0",
 ]
+docling = [
+    "docling",
+]
 
 [project.scripts]
 pocket-lawyer = "pocket_lawyer.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"pocket_lawyer.knowledge.playbooks" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

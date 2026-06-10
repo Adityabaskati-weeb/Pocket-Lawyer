@@ -2,16 +2,20 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import threading
+import time
+import tempfile
 from pathlib import Path
 from urllib import request
 from urllib.error import HTTPError
 
 from pocket_lawyer.api import create_server
+from pocket_lawyer.settings import get_settings
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RUNTIME_DIR = ROOT / "tests" / "runtime"
+RUNTIME_DIR = Path(tempfile.gettempdir()) / "pocket_lawyer_tests"
 
 
 def test_health_endpoint_returns_ok() -> None:
@@ -180,15 +184,32 @@ def test_contract_create_accepts_base64_text_file() -> None:
     assert created["report"]["findings"][0]["risk_level"] == "green"
 
 
+def test_create_server_allows_ephemeral_port(monkeypatch) -> None:
+    os.environ["POCKET_LAWYER_PORT"] = "900"
+    get_settings.cache_clear()
+    try:
+        server = create_server("127.0.0.1", 0)
+    finally:
+        os.environ.pop("POCKET_LAWYER_PORT", None)
+        get_settings.cache_clear()
+
+    try:
+        assert server.server_address[1] != 900
+    finally:
+        server.server_close()
+
+
 class running_test_server:
     def __init__(self, store_path: Path | None = None) -> None:
         self.store_path = store_path or (RUNTIME_DIR / "test_reports.json")
+        self._saved_env: dict[str, str | None] = {}
 
     def __enter__(self) -> str:
         RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
         if self.store_path.exists():
-            self.store_path.unlink()
+            safe_unlink(self.store_path)
 
+        self._suspend_llm_env()
         self.server = create_server("127.0.0.1", 0, store_path=self.store_path)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -199,5 +220,43 @@ class running_test_server:
         self.server.shutdown()
         self.server.server_close()
         self.thread.join(timeout=5)
+        self._restore_llm_env()
         if self.store_path.exists():
-            self.store_path.unlink()
+            safe_unlink(self.store_path)
+
+    def _suspend_llm_env(self) -> None:
+        keys = [
+            "POCKET_LAWYER_ENABLE_LLM",
+            "POCKET_LAWYER_LLM_PROVIDER",
+            "POCKET_LAWYER_LLM_MODEL",
+            "POCKET_LAWYER_LLM_API_BASE",
+            "POCKET_LAWYER_LLM_API_KEY",
+            "POCKET_LAWYER_OPENAI_API_KEY",
+            "OPENAI_API_KEY",
+        ]
+        self._saved_env = {key: os.environ.get(key) for key in keys}
+        for key in keys:
+            os.environ.pop(key, None)
+        get_settings.cache_clear()
+
+    def _restore_llm_env(self) -> None:
+        for key, value in self._saved_env.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+        get_settings.cache_clear()
+
+
+def safe_unlink(path: Path, attempts: int = 5, delay_seconds: float = 0.1) -> None:
+    last_error: PermissionError | None = None
+    for _ in range(attempts):
+        try:
+            path.unlink(missing_ok=True)
+            return
+        except PermissionError as exc:
+            last_error = exc
+            time.sleep(delay_seconds)
+
+    if last_error is not None:
+        raise last_error

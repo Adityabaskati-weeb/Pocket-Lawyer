@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import json
-import os
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from pocket_lawyer.models import ClauseFinding, ContractReport
+from pocket_lawyer.domain import ClauseFinding, ContractReport
+from pocket_lawyer.intake.models import ExtractedDocument
+from pocket_lawyer.settings import get_settings
 
 
-DEFAULT_STORE_PATH = Path(
-    os.environ.get("POCKET_LAWYER_STORE", "data/reports.json")
-)
+DEFAULT_STORE_PATH = get_settings().store_path
 
 
 class ReportStore:
@@ -24,6 +23,7 @@ class ReportStore:
         report: ContractReport,
         source_text: str,
         source_name: str | None = None,
+        source_document: ExtractedDocument | None = None,
     ) -> dict[str, Any]:
         records = self._load_records()
         record = {
@@ -36,6 +36,11 @@ class ReportStore:
             "summary": report.summary,
             "counts": _risk_counts(report.findings),
             "source_text": source_text,
+            "source_backend": report.source_backend,
+            "source_page_count": report.source_page_count,
+            "ocr_used": report.ocr_used,
+            "ocr_engine": report.ocr_engine,
+            "source_document": source_document.to_dict() if source_document else None,
             "report": report.to_dict(),
         }
         records.append(record)
@@ -56,7 +61,10 @@ class ReportStore:
         kept = [record for record in records if record["id"] != report_id]
         if len(kept) == len(records):
             return False
-        self._write_records(kept)
+        if kept:
+            self._write_records(kept)
+        elif self.path.exists():
+            self.path.unlink(missing_ok=True)
         return True
 
     def _summary(self, record: dict[str, Any]) -> dict[str, Any]:
@@ -69,6 +77,9 @@ class ReportStore:
             "overall_risk_score": record["overall_risk_score"],
             "summary": record["summary"],
             "counts": record["counts"],
+            "source_backend": record.get("source_backend"),
+            "source_page_count": record.get("source_page_count", 0),
+            "ocr_used": record.get("ocr_used", False),
         }
 
     def _load_records(self) -> list[dict[str, Any]]:
@@ -86,7 +97,9 @@ class ReportStore:
 
     def _write_records(self, records: list[dict[str, Any]]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
+        temp_path = self.path.with_suffix(f"{self.path.suffix}.tmp")
+        temp_path.write_text(json.dumps(records, indent=2) + "\n", encoding="utf-8")
+        temp_path.replace(self.path)
 
 
 def _risk_counts(findings: list[ClauseFinding]) -> dict[str, int]:

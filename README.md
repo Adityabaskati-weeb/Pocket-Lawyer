@@ -33,8 +33,9 @@ The current MVP already includes:
 
 - A premium browser-based contract scanner.
 - Six agreement types: employment, freelancer/client, rent, NDA, vendor/service, and loan.
-- Paste-text and TXT/PDF upload intake.
+- Paste-text and TXT/MD/PDF upload intake, with optional Docling-backed DOCX/image support.
 - Rule-backed clause detection with deterministic tests.
+- Optional retrieval-grounded LLM clause review behind an explicit feature flag.
 - Overall risk score and red/yellow/green breakdown.
 - Plain-language explanation for each finding.
 - Suggested replacement wording.
@@ -90,8 +91,8 @@ Many users do not have clean text PDFs. They have WhatsApp files, scans, photos,
 
 Planned intake:
 
-- OCR for scanned PDFs and phone photos.
-- DOCX support.
+- More robust OCR for scanned PDFs and phone photos.
+- Richer DOCX and image provenance.
 - Mobile camera upload flow.
 - Clause-by-clause document highlighting.
 - Exportable PDF report for sharing with family, founders, employers, or lawyers.
@@ -152,7 +153,8 @@ Potential revenue:
 8. Hybrid AI/legal-rule engine.
 9. Lawyer escalation and partner distribution.
 
-See [docs/PRD.md](docs/PRD.md) and [docs/ROADMAP.md](docs/ROADMAP.md) for the product scope and implementation plan.
+See [docs/PRD.md](docs/PRD.md), [docs/ROADMAP.md](docs/ROADMAP.md), and [docs/ARCHITECTURE_V2.md](docs/ARCHITECTURE_V2.md) for the product scope, implementation plan, and researched V2 system design.
+See [docs/OCR_SETUP.md](docs/OCR_SETUP.md) for OCR configuration, [docs/LLM_SETUP.md](docs/LLM_SETUP.md) for the optional LLM clause-review pass, and [docs/TEST_DOCUMENT_SOURCES.md](docs/TEST_DOCUMENT_SOURCES.md) for vetted legal test-document sources.
 
 ## Setup
 
@@ -199,7 +201,7 @@ Analyze another contract type:
 python -m pocket_lawyer --contract-type rent --text "The landlord may retain the security deposit at sole discretion."
 ```
 
-Analyze a text file:
+Analyze a local contract file:
 
 ```powershell
 python -m pocket_lawyer --file .\tests\fixtures\sample_green_contract.txt
@@ -220,11 +222,51 @@ Open:
 http://127.0.0.1:8765
 ```
 
-PDF uploads require `pypdf`, which is installed by the project dependency setup:
+Base intake support covers TXT, Markdown, and PDF. Optional Docling-backed intake adds DOCX, images, and scanned-PDF fallback:
 
 ```powershell
 python -m pip install -e .
+python -m pip install -e ".[docling]"
 ```
+
+Structured extraction now records:
+
+- backend used
+- page count
+- OCR usage
+- page/block metadata for richer provenance
+
+Optional retrieval-grounded LLM clause review is disabled by default. To enable it:
+
+```powershell
+$env:POCKET_LAWYER_ENABLE_LLM="1"
+$env:POCKET_LAWYER_OPENAI_API_KEY="YOUR_KEY"
+```
+
+Or for a self-hosted local model with Ollama:
+
+```powershell
+$env:POCKET_LAWYER_ENABLE_LLM="1"
+$env:POCKET_LAWYER_LLM_PROVIDER="ollama"
+$env:POCKET_LAWYER_LLM_MODEL="qwen3:1.7b"
+$env:POCKET_LAWYER_LLM_API_BASE="http://127.0.0.1:11434/api"
+```
+
+When enabled, reports may include:
+
+- `llm_status`
+- `llm_assessments`
+- finding-level `analysis_method`, `llm_confidence`, and `llm_reasoning_summary`
+
+The LLM layer does not replace the deterministic rule score. It acts as a second-pass clause reviewer and can escalate `analysis_status` when it finds a high-confidence issue the rules did not catch.
+
+Current recommendation:
+
+- low-end laptop / weak mobile GPU: keep local development mostly in rule-only mode
+- recommended free open-model target for better hardware: `qwen3:8b`
+- stronger local or server hardware: `mistral-small` class models
+
+The codebase now supports both `openai` and `ollama` LLM providers. The recommended low-end Ollama default is `qwen3:1.7b`, while `qwen3:8b` is the better target for stronger hardware.
 
 Analyze text:
 
