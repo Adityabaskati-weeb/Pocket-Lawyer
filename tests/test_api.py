@@ -44,6 +44,8 @@ def test_root_serves_web_app() -> None:
     assert 'id="upload-status-title"' in html
     assert "renderUploadStatus" in html
     assert "formatFileSize" in html
+    assert "syncTextareaForSelectedFile" in html
+    assert "syncTextareaWithExtractedText" in html
     assert "Initializing Sequence" not in html
     assert "Know the traps before ink dries." not in html
     assert "From dense clause to confident next move." not in html
@@ -304,6 +306,7 @@ def test_contract_create_accepts_pdf_when_artifact_replace_is_denied(
                     "filename": "employment.pdf",
                     "content_base64": encoded,
                     "contract_type": "employment",
+                    "text": "The borrower shall provide a blank cheque as security.",
                 }
             ).encode("utf-8"),
             headers={"Content-Type": "application/json"},
@@ -316,6 +319,7 @@ def test_contract_create_accepts_pdf_when_artifact_replace_is_denied(
     assert status == 201
     assert created["record"]["source_name"] == "employment.pdf"
     assert created["record"]["has_source_artifact"] is True
+    assert "non-compete for 24 months" in created["extracted_text"]
     assert created["report"]["source_backend"] == "pypdf"
     assert created["report"]["overall_risk_level"] == "high"
     assert created["report"]["findings"][0]["category"] == "non_compete"

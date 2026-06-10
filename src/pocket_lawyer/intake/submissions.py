@@ -19,6 +19,26 @@ class ContractSubmission:
 
 
 def build_contract_submission(payload: dict[str, Any]) -> ContractSubmission:
+    filename = payload.get("filename")
+    content_base64 = payload.get("content_base64")
+    has_uploaded_file = (
+        isinstance(filename, str)
+        and filename.strip()
+        and isinstance(content_base64, str)
+        and content_base64.strip()
+    )
+    if has_uploaded_file:
+        try:
+            content = base64.b64decode(content_base64, validate=True)
+        except ValueError as exc:
+            raise ValueError("Uploaded file content must be valid base64.") from exc
+
+        return ContractSubmission(
+            document=extract_contract_document(filename, content),
+            source_name=filename,
+            source_file_bytes=content,
+        )
+
     text = payload.get("text")
     if isinstance(text, str) and text.strip():
         source_name = clean_source_name(payload.get("source_name")) or "Pasted contract"
@@ -31,23 +51,10 @@ def build_contract_submission(payload: dict[str, Any]) -> ContractSubmission:
             source_name=source_name,
         )
 
-    filename = payload.get("filename")
-    content_base64 = payload.get("content_base64")
     if not isinstance(filename, str) or not filename.strip():
         raise ValueError("Provide text or an uploaded filename.")
     if not isinstance(content_base64, str) or not content_base64.strip():
         raise ValueError("Uploaded files must include base64 content.")
-
-    try:
-        content = base64.b64decode(content_base64, validate=True)
-    except ValueError as exc:
-        raise ValueError("Uploaded file content must be valid base64.") from exc
-
-    return ContractSubmission(
-        document=extract_contract_document(filename, content),
-        source_name=filename,
-        source_file_bytes=content,
-    )
 
 
 def clean_source_name(value: object) -> str:

@@ -2062,6 +2062,7 @@ The EMI schedule is attached as Annexure A.`,
       const refreshHistory = document.querySelector("#refresh-history");
       const historyList = document.querySelector("#history-list");
       const SCORE_CIRCUMFERENCE = 326.73;
+      const DEFAULT_TEXT_PLACEHOLDER = "Paste your agreement text here...";
       let activeReportId = "";
       let activeReport = null;
       const DIRECT_TEXT_EXTENSIONS = new Set(["txt", "text", "md"]);
@@ -2086,23 +2087,32 @@ The EMI schedule is attached as Annexure A.`,
       bindRipples();
 
       sampleButton.addEventListener("click", () => {
+        fileInput.value = "";
         textarea.value = SAMPLE_TEXT[contractType.value] || SAMPLE_TEXT.employment;
-        if (!fileInput.files[0]) {
-          renderUploadStatus(null);
-        }
+        textarea.placeholder = DEFAULT_TEXT_PLACEHOLDER;
+        renderUploadStatus(null);
         textarea.focus();
       });
 
       contractType.addEventListener("change", () => {
         syncContractPills();
-        textarea.value = SAMPLE_TEXT[contractType.value] || SAMPLE_TEXT.employment;
-        if (!fileInput.files[0]) {
+        if (fileInput.files[0]) {
+          syncTextareaForSelectedFile(fileInput.files[0]);
+        } else {
+          textarea.value = SAMPLE_TEXT[contractType.value] || SAMPLE_TEXT.employment;
           renderUploadStatus(null);
         }
       });
 
       textarea.addEventListener("input", () => {
-        if (!fileInput.files[0] && textarea.value.trim()) {
+        if (fileInput.files[0]) {
+          fileInput.value = "";
+          textarea.placeholder = DEFAULT_TEXT_PLACEHOLDER;
+          renderUploadStatus(null);
+          return;
+        }
+
+        if (textarea.value.trim()) {
           renderUploadStatus(null);
         }
       });
@@ -2115,7 +2125,9 @@ The EMI schedule is attached as Annexure A.`,
       });
 
       fileInput.addEventListener("change", () => {
-        renderUploadStatus(fileInput.files[0] || null);
+        const file = fileInput.files[0] || null;
+        renderUploadStatus(file);
+        syncTextareaForSelectedFile(file);
       });
 
       ["dragenter", "dragover"].forEach((eventName) => {
@@ -2131,6 +2143,7 @@ The EMI schedule is attached as Annexure A.`,
         if (event.dataTransfer.files.length) {
           fileInput.files = event.dataTransfer.files;
           renderUploadStatus(fileInput.files[0] || null);
+          syncTextareaForSelectedFile(fileInput.files[0] || null);
         }
       });
 
@@ -2197,6 +2210,9 @@ The EMI schedule is attached as Annexure A.`,
 
           activeReportId = payload.record?.id || "";
           activeReport = payload.report;
+          if (file) {
+            syncTextareaWithExtractedText(payload.extracted_text, file);
+          }
           renderReport(payload.report);
           if (file) {
             renderUploadStatus(file, {
@@ -2532,6 +2548,25 @@ The EMI schedule is attached as Annexure A.`,
         }
 
         window.requestAnimationFrame(tick);
+      }
+
+      function syncTextareaForSelectedFile(file) {
+        if (!file) {
+          textarea.placeholder = DEFAULT_TEXT_PLACEHOLDER;
+          return;
+        }
+
+        textarea.value = "";
+        textarea.placeholder = `${file.name} selected. Scan to extract and show the file text here.`;
+      }
+
+      function syncTextareaWithExtractedText(extractedText, file) {
+        if (typeof extractedText !== "string" || !extractedText.trim()) {
+          return;
+        }
+
+        textarea.value = extractedText.trim();
+        textarea.placeholder = `${file.name} text extracted. Edit this text to rescan manually.`;
       }
 
       function renderUploadStatus(file, override = {}) {

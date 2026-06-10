@@ -153,6 +153,7 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
             {
                 "record": self.server.report_store._summary(record),
                 "report": report.to_dict(),
+                "extracted_text": submission.document.text,
             },
             status=HTTPStatus.CREATED,
         )
