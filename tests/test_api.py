@@ -278,6 +278,49 @@ def test_contract_create_accepts_base64_text_file() -> None:
     assert saved["source_artifact"]["original_filename"] == "contract.txt"
 
 
+def test_contract_create_accepts_pdf_when_artifact_replace_is_denied(
+    monkeypatch,
+) -> None:
+    store_path = RUNTIME_DIR / "api_pdf_uploads.json"
+    original_replace = Path.replace
+
+    def deny_pdf_artifact_replace(path: Path, target: Path) -> Path:
+        if path.name.endswith(".pdf.tmp"):
+            raise PermissionError("simulated OneDrive PDF artifact replace denial")
+        return original_replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", deny_pdf_artifact_replace)
+    encoded = base64.b64encode(
+        minimal_pdf_bytes(
+            "The employee agrees to a non-compete for 24 months after employment."
+        )
+    ).decode("ascii")
+
+    with running_test_server(store_path) as base_url:
+        create_request = request.Request(
+            f"{base_url}/contracts",
+            data=json.dumps(
+                {
+                    "filename": "employment.pdf",
+                    "content_base64": encoded,
+                    "contract_type": "employment",
+                }
+            ).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with request.urlopen(create_request, timeout=5) as response:
+            created = json.loads(response.read().decode("utf-8"))
+            status = response.status
+
+    assert status == 201
+    assert created["record"]["source_name"] == "employment.pdf"
+    assert created["record"]["has_source_artifact"] is True
+    assert created["report"]["source_backend"] == "pypdf"
+    assert created["report"]["overall_risk_level"] == "high"
+    assert created["report"]["findings"][0]["category"] == "non_compete"
+
+
 def test_create_server_allows_ephemeral_port(monkeypatch) -> None:
     os.environ["POCKET_LAWYER_PORT"] = "900"
     get_settings.cache_clear()
@@ -367,6 +410,51 @@ def safe_unlink(path: Path, attempts: int = 5, delay_seconds: float = 0.1) -> No
 
     if last_error is not None:
         raise last_error
+
+
+def minimal_pdf_bytes(text: str) -> bytes:
+    content = (
+        "BT\n"
+        "/F1 12 Tf\n"
+        "50 742 Td\n"
+        f"({pdf_escape(text)}) Tj\n"
+        "ET\n"
+    ).encode("latin-1")
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        b"<< /Length "
+        + str(len(content)).encode("ascii")
+        + b" >>\nstream\n"
+        + content
+        + b"endstream",
+    ]
+
+    output = bytearray(b"%PDF-1.4\n")
+    offsets = [0]
+    for index, obj in enumerate(objects, start=1):
+        offsets.append(len(output))
+        output.extend(f"{index} 0 obj\n".encode("ascii"))
+        output.extend(obj)
+        output.extend(b"\nendobj\n")
+
+    xref_offset = len(output)
+    output.extend(f"xref\n0 {len(objects) + 1}\n".encode("ascii"))
+    output.extend(b"0000000000 65535 f \n")
+    for offset in offsets[1:]:
+        output.extend(f"{offset:010d} 00000 n \n".encode("ascii"))
+    output.extend(
+        f"trailer\n<< /Size {len(objects) + 1} /Root 1 0 R >>\nstartxref\n{xref_offset}\n%%EOF\n".encode(
+            "ascii"
+        )
+    )
+    return bytes(output)
+
+
+def pdf_escape(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
 def safe_rmtree(path: Path) -> None:

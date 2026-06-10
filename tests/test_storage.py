@@ -147,6 +147,52 @@ def test_report_store_supports_sqlite_and_uploaded_artifacts() -> None:
     safe_rmtree(uploads_root)
 
 
+def test_report_store_falls_back_when_artifact_replace_is_denied(
+    monkeypatch,
+) -> None:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    store_path = RUNTIME_DIR / "storage_artifact_replace_fallback.json"
+    uploads_root = RUNTIME_DIR / "storage_artifact_replace_uploads"
+    if store_path.exists():
+        safe_unlink(store_path)
+    safe_rmtree(uploads_root)
+
+    original_replace = Path.replace
+
+    def deny_upload_replace(path: Path, target: Path) -> Path:
+        if path.name.endswith(".pdf.tmp"):
+            raise PermissionError("simulated OneDrive artifact replace denial")
+        return original_replace(path, target)
+
+    monkeypatch.setattr(Path, "replace", deny_upload_replace)
+
+    store = ReportStore(store_path, uploads_root=uploads_root)
+    document = build_text_document(
+        "The employee agrees to a non-compete for 24 months after employment.",
+        filename="employment.pdf",
+        backend="pypdf",
+    )
+    report = analyze_extracted_document(document)
+
+    record = store.save_report(
+        report,
+        source_text=document.text,
+        source_name="employment.pdf",
+        source_document=document,
+        source_file_bytes=b"%PDF-1.4 demo",
+    )
+
+    artifact = record["source_artifact"]
+    assert artifact is not None
+    assert (uploads_root / artifact["storage_key"]).read_bytes() == b"%PDF-1.4 demo"
+    assert not (uploads_root / f"{artifact['storage_key']}.tmp").exists()
+
+    monkeypatch.undo()
+    if store_path.exists():
+        safe_unlink(store_path)
+    safe_rmtree(uploads_root)
+
+
 def test_json_store_falls_back_when_atomic_replace_is_denied(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
