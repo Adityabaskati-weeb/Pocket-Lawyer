@@ -4,7 +4,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from pocket_lawyer import analyze_extracted_document
+from pocket_lawyer import analyze_contract, analyze_extracted_document
 from pocket_lawyer.intake import build_text_document
 from pocket_lawyer.storage import ReportStore
 
@@ -39,14 +39,108 @@ def test_report_store_saves_lists_gets_and_deletes_report() -> None:
     assert history[0]["id"] == record["id"]
     assert history[0]["counts"]["red"] == 1
     assert history[0]["source_backend"] == "docling"
+    assert history[0]["has_source_artifact"] is False
     assert saved is not None
     assert saved["source_name"] == "sample.txt"
     assert saved["source_document"]["backend"] == "docling"
+    assert saved["source_artifact"] is None
     assert deleted is True
     assert store.get_report(record["id"]) is None
 
     if store_path.exists():
         safe_unlink(store_path)
+
+
+def test_report_store_supports_sqlite_and_uploaded_artifacts() -> None:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    store_path = RUNTIME_DIR / "storage_reports.sqlite"
+    uploads_root = RUNTIME_DIR / "storage_uploads"
+    if store_path.exists():
+        safe_unlink(store_path)
+    safe_rmtree(uploads_root)
+
+    store = ReportStore(store_path, uploads_root=uploads_root)
+    document = build_text_document(
+        "The borrower shall provide a blank cheque as security.",
+        backend="docling",
+    )
+    report = analyze_extracted_document(document, contract_type="loan")
+    record = store.save_report(
+        report,
+        source_text=document.text,
+        source_name="loan-contract.pdf",
+        source_document=document,
+        source_file_bytes=b"%PDF-1.7 demo",
+    )
+
+    saved = store.get_report(record["id"])
+    history = store.list_reports()
+    artifact = saved["source_artifact"] if saved else None
+
+    assert history[0]["id"] == record["id"]
+    assert history[0]["has_source_artifact"] is True
+    assert saved is not None
+    assert artifact is not None
+    assert artifact["original_filename"] == "loan-contract.pdf"
+    assert artifact["byte_size"] == len(b"%PDF-1.7 demo")
+    assert (uploads_root / artifact["storage_key"]).exists()
+
+    deleted = store.delete_report(record["id"])
+
+    assert deleted is True
+    assert not (uploads_root / artifact["storage_key"]).exists()
+    assert store.get_report(record["id"]) is None
+
+    if store_path.exists():
+        safe_unlink(store_path)
+    safe_rmtree(uploads_root)
+
+
+def test_json_store_falls_back_when_atomic_replace_is_denied(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+    store_path = RUNTIME_DIR / "storage_replace_fallback.json"
+    if store_path.exists():
+        safe_unlink(store_path)
+
+    original_replace = Path.replace
+    original_unlink = Path.unlink
+
+    def deny_replace_once(path: Path, target: Path) -> Path:
+        if path.name == "storage_replace_fallback.json.tmp":
+            raise PermissionError("simulated OneDrive replace denial")
+        return original_replace(path, target)
+
+    def deny_tmp_unlink(path: Path, missing_ok: bool = False) -> None:
+        if path.name == "storage_replace_fallback.json.tmp":
+            raise PermissionError("simulated OneDrive temp cleanup denial")
+        return original_unlink(path, missing_ok=missing_ok)
+
+    monkeypatch.setattr(Path, "replace", deny_replace_once)
+    monkeypatch.setattr(Path, "unlink", deny_tmp_unlink)
+
+    store = ReportStore(store_path)
+    report = analyze_contract(
+        "The employee agrees to a non-compete for 24 months after employment."
+    )
+    record = store.save_report(
+        report,
+        source_text="The employee agrees to a non-compete for 24 months after employment.",
+        source_name="Offer letter",
+    )
+
+    saved = store.get_report(record["id"])
+
+    assert saved is not None
+    assert saved["source_name"] == "Offer letter"
+
+    monkeypatch.undo()
+    if store_path.exists():
+        safe_unlink(store_path)
+    temp_path = store_path.with_suffix(".json.tmp")
+    if temp_path.exists():
+        safe_unlink(temp_path)
 
 
 def safe_unlink(path: Path, attempts: int = 5, delay_seconds: float = 0.1) -> None:
@@ -61,3 +155,14 @@ def safe_unlink(path: Path, attempts: int = 5, delay_seconds: float = 0.1) -> No
 
     if last_error is not None:
         raise last_error
+
+
+def safe_rmtree(path: Path) -> None:
+    if not path.exists():
+        return
+    for child in path.iterdir():
+        if child.is_dir():
+            safe_rmtree(child)
+        else:
+            safe_unlink(child)
+    path.rmdir()

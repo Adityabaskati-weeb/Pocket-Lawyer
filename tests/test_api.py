@@ -33,15 +33,34 @@ def test_root_serves_web_app() -> None:
             content_type = response.headers["Content-Type"]
 
     assert "text/html" in content_type
-    assert "Initializing Sequence" in html
-    assert "Know the traps before ink dries." in html
+    assert "Legal Help. In Your Pocket." in html
+    assert "/static/pocket-lawyer-hero.png" in html
+    assert "image-hero" in html
+    assert "luxury-dock" in html
+    assert "proof-grid" in html
+    assert "Drop A Contract File" in html
+    assert "Initializing Sequence" not in html
+    assert "Know the traps before ink dries." not in html
+    assert "From dense clause to confident next move." not in html
+    assert "motion-scene" not in html
+    assert "initMotionScene" not in html
+    assert "hero-preview" not in html
     assert "signal-cloud" not in html
     assert "scroll-cue" not in html
     assert "IP RIGHTS" not in html
+    assert "fal-ai" not in html
+    assert "FAL_KEY" not in html
     assert "Check your contract before you sign." in html
     assert 'value="loan"' in html
     assert "contract-pill" in html
     assert "score-ring" in html
+    assert "Local funding demo map" not in html
+    assert "Demo prototype" not in html
+    assert "Production roadmap" not in html
+    assert "AI Review Status" in html
+    assert 'id="ai-review-status"' in html
+    assert "renderAiReview" in html
+    assert "formatAnalysisMethod" in html
     assert "Founder offer letter" in html
     assert "function renderReport" in html
     assert "/static/app.js" not in html
@@ -179,9 +198,15 @@ def test_contract_create_accepts_base64_text_file() -> None:
         with request.urlopen(create_request, timeout=5) as response:
             created = json.loads(response.read().decode("utf-8"))
 
+        report_id = created["record"]["id"]
+        with request.urlopen(f"{base_url}/contracts/{report_id}", timeout=5) as response:
+            saved = json.loads(response.read().decode("utf-8"))
+
     assert created["record"]["source_name"] == "contract.txt"
     assert created["report"]["overall_risk_level"] == "low"
     assert created["report"]["findings"][0]["risk_level"] == "green"
+    assert created["record"]["has_source_artifact"] is True
+    assert saved["source_artifact"]["original_filename"] == "contract.txt"
 
 
 def test_create_server_allows_ephemeral_port(monkeypatch) -> None:
@@ -202,15 +227,22 @@ def test_create_server_allows_ephemeral_port(monkeypatch) -> None:
 class running_test_server:
     def __init__(self, store_path: Path | None = None) -> None:
         self.store_path = store_path or (RUNTIME_DIR / "test_reports.json")
+        self.uploads_root = RUNTIME_DIR / "uploads"
         self._saved_env: dict[str, str | None] = {}
 
     def __enter__(self) -> str:
         RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+        self.uploads_root.mkdir(parents=True, exist_ok=True)
         if self.store_path.exists():
             safe_unlink(self.store_path)
 
         self._suspend_llm_env()
-        self.server = create_server("127.0.0.1", 0, store_path=self.store_path)
+        self.server = create_server(
+            "127.0.0.1",
+            0,
+            store_path=self.store_path,
+            uploads_root=self.uploads_root,
+        )
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
         host, port = self.server.server_address
@@ -223,6 +255,7 @@ class running_test_server:
         self._restore_llm_env()
         if self.store_path.exists():
             safe_unlink(self.store_path)
+        safe_rmtree(self.uploads_root)
 
     def _suspend_llm_env(self) -> None:
         keys = [
@@ -260,3 +293,14 @@ def safe_unlink(path: Path, attempts: int = 5, delay_seconds: float = 0.1) -> No
 
     if last_error is not None:
         raise last_error
+
+
+def safe_rmtree(path: Path) -> None:
+    if not path.exists():
+        return
+    for child in path.iterdir():
+        if child.is_dir():
+            safe_rmtree(child)
+        else:
+            safe_unlink(child)
+    path.rmdir()

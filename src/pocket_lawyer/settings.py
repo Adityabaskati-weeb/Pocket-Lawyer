@@ -16,7 +16,9 @@ DEFAULT_WEB_ROOT = PROJECT_ROOT / "web"
 class AppSettings:
     default_host: str
     default_port: int
+    store_backend: str
     store_path: Path
+    uploads_path: Path
     web_root: Path
     ocr_engine: str
     ocr_languages: tuple[str, ...]
@@ -111,7 +113,13 @@ def get_settings() -> AppSettings:
     return AppSettings(
         default_host=os.environ.get("POCKET_LAWYER_HOST", "127.0.0.1"),
         default_port=port,
+        store_backend=os.environ.get("POCKET_LAWYER_STORE_BACKEND", "auto")
+        .strip()
+        .lower(),
         store_path=Path(os.environ.get("POCKET_LAWYER_STORE", "data/reports.json")),
+        uploads_path=Path(
+            os.environ.get("POCKET_LAWYER_UPLOAD_STORE", "data/uploads")
+        ),
         web_root=Path(os.environ.get("POCKET_LAWYER_WEB_ROOT", DEFAULT_WEB_ROOT)),
         ocr_engine=_default_ocr_engine(),
         ocr_languages=ocr_languages or ("eng",),

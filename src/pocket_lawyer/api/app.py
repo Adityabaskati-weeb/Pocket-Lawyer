@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import base64
 import json
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -10,8 +9,7 @@ from typing import Any
 from urllib.parse import unquote, urlsplit
 
 from pocket_lawyer.analysis import analyze_contract, analyze_extracted_document
-from pocket_lawyer.intake import IntakeError, build_text_document, extract_contract_document
-from pocket_lawyer.intake.models import ExtractedDocument
+from pocket_lawyer.intake import IntakeError, build_contract_submission
 from pocket_lawyer.settings import get_settings
 from pocket_lawyer.storage import ReportStore
 
@@ -121,7 +119,7 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
     def _handle_contract_create(self) -> None:
         try:
             payload = self._read_json_body()
-            document, source_name = self._contract_document_from_payload(payload)
+            submission = build_contract_submission(payload)
         except (ValueError, IntakeError) as exc:
             self._send_json({"error": str(exc)}, status=HTTPStatus.BAD_REQUEST)
             return
@@ -130,12 +128,16 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
         if not isinstance(contract_type, str) or not contract_type.strip():
             contract_type = "employment"
 
-        report = analyze_extracted_document(document, contract_type=contract_type)
+        report = analyze_extracted_document(
+            submission.document,
+            contract_type=contract_type,
+        )
         record = self.server.report_store.save_report(
             report,
-            source_text=document.text,
-            source_name=source_name,
-            source_document=document,
+            source_text=submission.document.text,
+            source_name=submission.source_name,
+            source_document=submission.document,
+            source_file_bytes=submission.source_file_bytes,
         )
         self._send_json(
             {
@@ -157,28 +159,6 @@ class PocketLawyerHandler(BaseHTTPRequestHandler):
             return
 
         self._send_json(record)
-
-    def _contract_document_from_payload(
-        self, payload: dict[str, Any]
-    ) -> tuple[ExtractedDocument, str]:
-        text = payload.get("text")
-        if isinstance(text, str) and text.strip():
-            source_name = clean_source_name(payload.get("source_name")) or "Pasted contract"
-            return build_text_document(text, filename=source_name, backend="pasted_text"), source_name
-
-        filename = payload.get("filename")
-        content_base64 = payload.get("content_base64")
-        if not isinstance(filename, str) or not filename.strip():
-            raise ValueError("Provide text or an uploaded filename.")
-        if not isinstance(content_base64, str) or not content_base64.strip():
-            raise ValueError("Uploaded files must include base64 content.")
-
-        try:
-            content = base64.b64decode(content_base64, validate=True)
-        except ValueError as exc:
-            raise ValueError("Uploaded file content must be valid base64.") from exc
-
-        return extract_contract_document(filename, content), filename
 
     def log_message(self, format: str, *args: Any) -> None:
         return
@@ -245,6 +225,7 @@ def create_server(
     host: str | None = None,
     port: int | None = None,
     store_path: str | Path | None = None,
+    uploads_root: str | Path | None = None,
 ) -> PocketLawyerHTTPServer:
     settings = get_settings()
     server = PocketLawyerHTTPServer(
@@ -254,7 +235,11 @@ def create_server(
         ),
         PocketLawyerHandler,
     )
-    server.report_store = ReportStore(store_path) if store_path else ReportStore()
+    server.report_store = (
+        ReportStore(store_path, uploads_root=uploads_root)
+        if store_path
+        else ReportStore(uploads_root=uploads_root)
+    )
     server.web_root = settings.web_root
     return server
 
@@ -278,9 +263,3 @@ def main(argv: list[str] | None = None) -> int:
         server.server_close()
 
     return 0
-
-
-def clean_source_name(value: object) -> str:
-    if not isinstance(value, str):
-        return ""
-    return value.strip()

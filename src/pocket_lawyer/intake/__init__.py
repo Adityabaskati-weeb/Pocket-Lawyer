@@ -18,9 +18,15 @@ from pocket_lawyer.intake.models import (
     SourceBounds,
 )
 from pocket_lawyer.intake.pdf_text import extract_pdf_text
+from pocket_lawyer.intake.submissions import (
+    ContractSubmission,
+    build_contract_submission,
+)
 
 __all__ = [
     "build_text_document",
+    "build_contract_submission",
+    "ContractSubmission",
     "DoclingArtifactsMissing",
     "DoclingSupportMissing",
     "ExtractedBlock",
