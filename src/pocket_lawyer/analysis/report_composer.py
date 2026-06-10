@@ -24,7 +24,7 @@ def build_summary(
         label = SUPPORTED_CONTRACT_TYPES[contract_type].lower()
         return (
             f"No known high-risk {label} clauses were detected by the current "
-            "demo rule set. Review the full contract carefully before signing."
+            "rule set. Review the full contract carefully before signing."
         )
 
     label = SUPPORTED_CONTRACT_TYPES[contract_type].lower()

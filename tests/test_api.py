@@ -62,6 +62,8 @@ def test_root_serves_web_app() -> None:
     assert "contract-pill" in html
     assert "score-ring" in html
     assert "Local funding demo map" not in html
+    assert "funding demo" not in html
+    assert "demo vault" not in html
     assert "Demo prototype" not in html
     assert "Production roadmap" not in html
     assert "AI Review Status" in html

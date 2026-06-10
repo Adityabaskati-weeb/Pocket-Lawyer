@@ -13,22 +13,24 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
 endobj
 5 0 obj
-<< /Length 430 >>
+<< /Length 456 >>
 stream
 BT
 /F1 18 Tf
 50 742 Td
-(DEMO NON-DISCLOSURE AGREEMENT) Tj
+(NON-DISCLOSURE AGREEMENT) Tj
 /F1 10 Tf
 0 -30 Td
 15 TL
-(This sample is for Pocket Lawyer demo testing only.) Tj
-T*
-T*
 (All information shared by the company is confidential forever with no exceptions.) Tj
 T*
 T*
-(The recipient shall not use general knowledge, skills, or experience learned during discussions.) Tj
+(The recipient shall not use general knowledge, skills, or experience learned during) Tj
+T*
+(discussions.) Tj
+T*
+T*
+(Only the recipient has confidentiality obligations to the disclosing party.) Tj
 T*
 T*
 (Disclosure required by law or court order is permitted after notice.) Tj
@@ -48,5 +50,5 @@ xref
 trailer
 << /Size 6 /Root 1 0 R >>
 startxref
-797
+824
 %%EOF

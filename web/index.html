@@ -1917,7 +1917,7 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
                   <p id="ai-review-title" class="ai-review-label">AI Review Status</p>
                   <span id="ai-review-status" class="status-pill disabled">Disabled</span>
                 </div>
-                <p id="ai-review-copy" class="ai-review-copy">Rules and playbooks produced this report. Local LLM review can be enabled for the funding demo.</p>
+                <p id="ai-review-copy" class="ai-review-copy">Rules and playbooks produced this report. Local LLM review can be enabled for hybrid analysis.</p>
               </section>
 
               <section id="lawyer-review-card" class="lawyer-review-card disabled" aria-labelledby="lawyer-review-title" aria-live="polite">
@@ -1931,7 +1931,7 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
 
               <div class="vault-actions" aria-label="Local vault controls">
                 <button id="delete-report" type="button" disabled data-ripple>Delete Saved Report</button>
-                <span>Removes this saved report, uploaded artifact, and any local review request from the demo vault.</span>
+                <span>Removes this saved report, uploaded artifact, and any local review request from the local vault.</span>
               </div>
 
               <div class="finding-counts" aria-label="Risk finding breakdown">
@@ -2350,7 +2350,7 @@ The EMI schedule is attached as Annexure A.`,
           return;
         }
 
-        aiReviewCopy.textContent = "Rules and playbooks produced this report. Enable local Ollama for the funding demo hybrid review.";
+        aiReviewCopy.textContent = "Rules and playbooks produced this report. Enable local Ollama for hybrid AI review.";
       }
 
       function renderLawyerReview(report) {
@@ -2405,7 +2405,7 @@ The EMI schedule is attached as Annexure A.`,
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              note: "Local browser demo request for qualified lawyer review.",
+              note: "Local browser request for qualified lawyer review.",
             }),
           });
           const payload = await response.json();
