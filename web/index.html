@@ -14,10 +14,12 @@
         --primary: #08111f;
         --primary-2: #13233a;
         --ink: #050a12;
+        --navy: #071521;
         --success: #12b981;
         --warning: #f2b84b;
         --critical: #e94c4c;
         --accent: #14b8a6;
+        --sky: #9ed8ff;
         --cream: #fff7e8;
         --canvas: #f6efe2;
         --text: #182231;
@@ -130,7 +132,7 @@
         left: 50%;
         z-index: 10;
         display: flex;
-        width: min(900px, calc(100% - 28px));
+        width: min(1040px, calc(100% - 28px));
         min-height: 64px;
         align-items: center;
         justify-content: space-between;
@@ -177,12 +179,12 @@
       .dock-links {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 4px;
       }
 
       .dock-link {
         border-radius: 999px;
-        padding: 11px 14px;
+        padding: 11px 12px;
         color: rgba(8, 17, 31, 0.88);
         font-family: "JetBrains Mono", monospace;
         font-size: 13px;
@@ -260,15 +262,18 @@
 
       .intro-strip {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
+        grid-template-columns: minmax(0, 0.92fr) minmax(330px, 0.78fr);
         gap: clamp(24px, 4vw, 44px);
         align-items: start;
-        border: 1px solid rgba(8, 17, 31, 0.08);
-        border-radius: 36px;
-        padding: clamp(24px, 4vw, 44px);
+        overflow: hidden;
+        border: 1px solid rgba(8, 17, 31, 0.1);
+        border-radius: 40px;
+        padding: clamp(28px, 4vw, 52px);
         background:
-          linear-gradient(135deg, rgba(255, 253, 248, 0.86), rgba(236, 253, 245, 0.58)),
-          rgba(255, 255, 255, 0.72);
+          radial-gradient(circle at 92% 12%, rgba(20, 184, 166, 0.18), transparent 28%),
+          radial-gradient(circle at 8% 8%, rgba(242, 184, 75, 0.16), transparent 22%),
+          linear-gradient(135deg, rgba(255, 253, 248, 0.92), rgba(236, 253, 245, 0.68)),
+          rgba(255, 255, 255, 0.82);
         box-shadow: var(--shadow-md);
       }
 
@@ -368,16 +373,198 @@
         text-transform: uppercase;
       }
 
-      .doc-image {
+      .contract-canvas {
         align-self: start;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 520 / 340;
-        min-height: 0;
-        object-fit: cover;
-        border: 1px solid rgba(8, 17, 31, 0.12);
-        border-radius: 28px;
-        box-shadow: 0 22px 46px rgba(8, 17, 31, 0.14);
+        display: grid;
+        gap: 14px;
+        min-width: 0;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 34px;
+        padding: 18px;
+        color: #f8fafc;
+        background:
+          radial-gradient(circle at 15% 0%, rgba(158, 216, 255, 0.22), transparent 30%),
+          radial-gradient(circle at 92% 88%, rgba(18, 185, 129, 0.24), transparent 30%),
+          linear-gradient(145deg, #06111f, #0e2437 54%, #093a34);
+        box-shadow: 0 28px 80px rgba(8, 17, 31, 0.22);
+      }
+
+      .canvas-topline,
+      .canvas-row,
+      .canvas-card,
+      .canvas-metrics {
+        min-width: 0;
+      }
+
+      .canvas-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .canvas-kicker {
+        margin: 0;
+        color: #a7f3d0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .canvas-status {
+        border: 1px solid rgba(18, 185, 129, 0.32);
+        border-radius: 999px;
+        padding: 6px 10px;
+        color: #bbf7d0;
+        background: rgba(18, 185, 129, 0.12);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .canvas-row {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 12px;
+      }
+
+      .canvas-card {
+        border: 1px solid rgba(236, 253, 245, 0.14);
+        border-radius: 22px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .canvas-card strong {
+        display: block;
+        color: #ffffff;
+        font-size: 15px;
+      }
+
+      .canvas-card span,
+      .canvas-card p {
+        display: block;
+        margin: 6px 0 0;
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+
+      .canvas-score {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+      }
+
+      .canvas-score strong {
+        color: #ffffff;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 30px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .canvas-risk {
+        color: #fecaca;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .workflow-track {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .workflow-track li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #e2e8f0;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .workflow-track span {
+        display: grid;
+        width: 24px;
+        height: 24px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 999px;
+        color: #052e2b;
+        background: linear-gradient(135deg, var(--warning), var(--success));
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+      }
+
+      .risk-bars {
+        display: grid;
+        grid-template-columns: 3fr 1.1fr 0.8fr;
+        gap: 5px;
+        margin-top: 12px;
+      }
+
+      .risk-bars span {
+        height: 7px;
+        border-radius: 999px;
+      }
+
+      .risk-red {
+        background: #fb7185;
+      }
+
+      .risk-yellow {
+        background: #fbbf24;
+      }
+
+      .risk-green {
+        background: #34d399;
+      }
+
+      .canvas-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .canvas-metrics span {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        padding: 10px;
+        color: #dbeafe;
+        background: rgba(255, 255, 255, 0.07);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .canvas-metrics strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #ffffff;
+        font-size: 16px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .canvas-note {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 12px;
+        line-height: 1.5;
       }
 
       .tool-grid {
@@ -385,6 +572,126 @@
         grid-template-columns: minmax(330px, 0.92fr) minmax(380px, 1.08fr);
         gap: var(--space-3);
         align-items: start;
+      }
+
+      .section-panel {
+        border: 1px solid rgba(8, 17, 31, 0.1);
+        border-radius: 34px;
+        padding: clamp(22px, 3vw, 34px);
+        background:
+          linear-gradient(145deg, rgba(255, 253, 248, 0.88), rgba(255, 255, 255, 0.74)),
+          rgba(255, 255, 255, 0.72);
+        box-shadow: 0 22px 64px rgba(8, 17, 31, 0.1);
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      .section-heading h2 {
+        max-width: 680px;
+        margin: 0;
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 0.98;
+        letter-spacing: -0.035em;
+        text-wrap: balance;
+      }
+
+      .section-heading p:last-child {
+        max-width: 340px;
+        margin: 0;
+        color: #3f4b5f;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.55;
+      }
+
+      .capability-grid,
+      .roadmap-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .capability-card,
+      .roadmap-card {
+        min-width: 0;
+        border: 1px solid rgba(8, 17, 31, 0.1);
+        border-radius: 24px;
+        padding: 18px;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(18, 185, 129, 0.1), transparent 34%),
+          rgba(255, 255, 255, 0.74);
+        box-shadow: 0 14px 36px rgba(8, 17, 31, 0.07);
+      }
+
+      .capability-card strong,
+      .roadmap-card strong {
+        display: block;
+        margin: 12px 0 8px;
+        color: var(--primary);
+        font-size: 16px;
+      }
+
+      .capability-card p,
+      .roadmap-card p {
+        margin: 0;
+        color: #46546a;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .feature-tag {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 9px;
+        color: #064e3b;
+        background: rgba(18, 185, 129, 0.14);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .feature-tag.pending {
+        color: #92400e;
+        background: rgba(242, 184, 75, 0.18);
+      }
+
+      .roadmap-panel {
+        background:
+          radial-gradient(circle at 90% 20%, rgba(20, 184, 166, 0.14), transparent 24%),
+          linear-gradient(145deg, rgba(255, 253, 248, 0.88), rgba(236, 253, 245, 0.64)),
+          rgba(255, 255, 255, 0.72);
+      }
+
+      .demo-panel-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-2);
+        margin-bottom: var(--space-2);
+      }
+
+      .demo-panel-label h2 {
+        margin: 0;
+        color: var(--primary);
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1;
+      }
+
+      .demo-panel-label p {
+        max-width: 410px;
+        margin: 0;
+        color: #3f4b5f;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.5;
       }
 
       .scan-panel,
@@ -1638,9 +1945,42 @@
         .tool-grid {
           grid-template-columns: 1fr;
         }
+
+        .capability-grid,
+        .roadmap-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
       }
 
       @media (max-width: 768px) {
+        .luxury-dock {
+          gap: 8px;
+          min-height: 56px;
+          padding: 8px;
+        }
+
+        .dock-brand span:last-child {
+          display: none;
+        }
+
+        .dock-links {
+          min-width: 0;
+          overflow-x: auto;
+          overscroll-behavior-inline: contain;
+          scrollbar-width: none;
+        }
+
+        .dock-links::-webkit-scrollbar {
+          display: none;
+        }
+
+        .dock-link {
+          flex: 0 0 auto;
+          padding: 9px 9px;
+          font-size: 10px;
+          white-space: nowrap;
+        }
+
         .hero-proof {
           max-width: none;
         }
@@ -1654,9 +1994,15 @@
           grid-template-columns: 1fr;
         }
 
-        .doc-image {
-          max-height: 220px;
-          object-fit: cover;
+        .canvas-row,
+        .canvas-metrics {
+          grid-template-columns: 1fr;
+        }
+
+        .section-heading,
+        .demo-panel-label {
+          align-items: start;
+          flex-direction: column;
         }
 
         .contract-pills {
@@ -1700,6 +2046,11 @@
           grid-template-columns: 1fr;
         }
 
+        .capability-grid,
+        .roadmap-grid {
+          grid-template-columns: 1fr;
+        }
+
         .scan-panel,
         .report-panel {
           padding: var(--space-2);
@@ -1728,7 +2079,9 @@
       </a>
       <div class="dock-links">
         <a class="dock-link" href="#page-top">Home</a>
+        <a class="dock-link" href="#capabilities">Features</a>
         <a class="dock-link" href="#scan-form">Scanner</a>
+        <a class="dock-link" href="#roadmap">Coming Soon</a>
         <a class="dock-link" href="#history-title">Reports</a>
       </div>
     </nav>
@@ -1737,17 +2090,17 @@
       <section id="scanner" class="workspace" aria-labelledby="app-title">
         <div class="intro-strip">
           <div class="intro-copy">
-            <p class="eyebrow">Pocket Lawyer</p>
-            <h1 id="app-title" class="app-title">Review contracts before you sign.</h1>
-            <p class="subcopy">Upload a readable PDF, DOCX, image, or paste agreement text to surface red flags, safer wording, and a negotiation message in plain language.</p>
+            <p class="eyebrow">AI Contract Review Workspace</p>
+            <h1 id="app-title" class="app-title">Answer contract questions before you sign.</h1>
+            <p class="subcopy">Scan common agreements, surface risky clauses, generate safer wording, and produce a negotiation message from one local browser workspace.</p>
             <div class="hero-actions">
               <a class="hero-button" href="#scan-form" data-ripple>Scan Contract</a>
-              <span class="hero-proof">Evidence-first findings. Documents stay on this local demo unless you save a report.</span>
+              <span class="hero-proof">Built for a live product walkthrough: show the working scanner now, then explain the platform roadmap clearly.</span>
             </div>
             <ul class="trust-row" aria-label="Privacy and review safeguards">
-              <li>Documents Stay Local</li>
+              <li>Local Browser Demo</li>
+              <li>Readable PDF Support</li>
               <li>Legal Info, Not Advice</li>
-              <li>Human Review Escalation</li>
             </ul>
             <div class="proof-grid" aria-label="Scanner capabilities">
               <div class="proof-card">
@@ -1764,13 +2117,91 @@
               </div>
             </div>
           </div>
-          <img
-            class="doc-image"
-            src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="%230f172a"/><stop offset="1" stop-color="%2310b981"/></linearGradient></defs><rect width="520" height="340" rx="18" fill="%23f8fafc"/><rect x="54" y="44" width="300" height="238" rx="14" fill="white" stroke="%23d8dee8" stroke-width="3"/><path d="M92 92h224M92 132h184M92 172h224M92 212h150" stroke="%230f172a" stroke-width="10" stroke-linecap="round" opacity=".75"/><circle cx="398" cy="138" r="62" fill="url(%23g)" opacity=".92"/><path d="m371 137 19 20 38-45" fill="none" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-            alt="Illustration of a legal document being checked"
-            width="520"
-            height="340"
-          >
+          <aside class="contract-canvas" aria-label="Pocket Lawyer workflow preview">
+            <div class="canvas-topline">
+              <p class="canvas-kicker">Live Workflow</p>
+              <span class="canvas-status">Local Mode</span>
+            </div>
+            <div class="canvas-row">
+              <div class="canvas-card">
+                <strong>1. Upload</strong>
+                <span>Paste text or add TXT, Markdown, readable PDF, DOCX, or image.</span>
+              </div>
+              <div class="canvas-card">
+                <strong>2. Risk Report</strong>
+                <div class="canvas-score">
+                  <span class="canvas-risk">High Risk</span>
+                  <strong>84</strong>
+                </div>
+                <div class="risk-bars" aria-hidden="true">
+                  <span class="risk-red"></span>
+                  <span class="risk-yellow"></span>
+                  <span class="risk-green"></span>
+                </div>
+              </div>
+            </div>
+            <ol class="workflow-track">
+              <li><span>01</span>Detect contract type and clause matches.</li>
+              <li><span>02</span>Explain red, yellow, and green findings.</li>
+              <li><span>03</span>Generate negotiation wording and save report.</li>
+            </ol>
+            <div class="canvas-metrics" aria-label="Current demo scope">
+              <span><strong>6</strong>Types</span>
+              <span><strong>3</strong>Risk Tiers</span>
+              <span><strong>1</strong>Script</span>
+            </div>
+            <p class="canvas-note">Coming soon features are separated below so the demo does not overpromise production capabilities.</p>
+          </aside>
+        </div>
+
+        <section id="capabilities" class="section-panel" aria-labelledby="capabilities-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Working Now</p>
+              <h2 id="capabilities-title">The live walkthrough can show real contract review, not a static mockup.</h2>
+            </div>
+            <p>These cards describe features implemented in the local browser app and safe to demonstrate live.</p>
+          </div>
+          <div class="capability-grid">
+            <article class="capability-card">
+              <span class="feature-tag">Live</span>
+              <strong>Document Intake</strong>
+              <p>Paste text or upload supported files. Readable PDFs and plain text can feed the scanner directly.</p>
+            </article>
+            <article class="capability-card">
+              <span class="feature-tag">Live</span>
+              <strong>Clause Risk Detection</strong>
+              <p>Rules and playbooks flag risky non-competes, broad IP assignment, deposit terms, fees, and more.</p>
+            </article>
+            <article class="capability-card">
+              <span class="feature-tag">Live</span>
+              <strong>Plain-Language Report</strong>
+              <p>Each result includes risk level, score, why it matters, suggested wording, and source span context.</p>
+            </article>
+            <article class="capability-card">
+              <span class="feature-tag">Live</span>
+              <strong>Negotiation Message</strong>
+              <p>The app produces a ready-to-send negotiation script based on detected contract risks.</p>
+            </article>
+            <article class="capability-card">
+              <span class="feature-tag">Live</span>
+              <strong>Saved Reports</strong>
+              <p>Recent scans are stored locally so you can reopen, delete, and discuss previous reports.</p>
+            </article>
+            <article class="capability-card">
+              <span class="feature-tag">Local</span>
+              <strong>Optional LLM Layer</strong>
+              <p>The backend can enable local Ollama review when configured, while the demo still works with rules.</p>
+            </article>
+          </div>
+        </section>
+
+        <div class="demo-panel-label">
+          <div>
+            <p class="eyebrow">Live Scanner</p>
+            <h2>Try the contract review flow.</h2>
+          </div>
+          <p>Use the sample, paste your own clause, or upload a readable contract file to generate the report below.</p>
         </div>
 
         <div class="tool-grid">
@@ -1912,6 +2343,48 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
             </section>
           </section>
         </div>
+
+        <section id="roadmap" class="section-panel roadmap-panel" aria-labelledby="roadmap-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Coming Soon</p>
+              <h2 id="roadmap-title">Platform features planned after the local demo.</h2>
+            </div>
+            <p>These are important for production, but should be presented as roadmap items rather than live functionality.</p>
+          </div>
+          <div class="roadmap-grid">
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>User Accounts</strong>
+              <p>Secure sign-in, user profiles, and role-based access for stored contracts.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Encrypted Contract Vault</strong>
+              <p>Private cloud storage with encryption, retention controls, and document access logs.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Hosted LLM Strategy</strong>
+              <p>Production-grade model routing for public users without depending on local Ollama.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Background Processing</strong>
+              <p>Queue-based OCR and heavier document jobs for scanned files and long agreements.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Lawyer Marketplace</strong>
+              <p>Escalation workflow from AI report to qualified lawyer review and status tracking.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Billing & Release Hardening</strong>
+              <p>Subscriptions, evaluation pipeline, security review, analytics, and production monitoring.</p>
+            </article>
+          </div>
+        </section>
       </section>
     </main>
     <script>
