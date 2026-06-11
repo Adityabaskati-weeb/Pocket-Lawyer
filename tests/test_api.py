@@ -58,8 +58,11 @@ def test_root_serves_web_app() -> None:
     assert "fal-ai" not in html
     assert "FAL_KEY" not in html
     assert "Check your contract before you sign." in html
+    assert '<h2 id="app-title" class="app-title">Check your contract before you sign.</h2>' in html
+    assert "scroll-margin-top" in html
     assert 'value="loan"' in html
     assert "contract-pill" in html
+    assert 'name="contract-file"' in html
     assert "score-ring" in html
     assert "Local funding demo map" not in html
     assert "funding demo" not in html
@@ -75,9 +78,15 @@ def test_root_serves_web_app() -> None:
     assert "createReviewRequest" in html
     assert "Delete Saved Report" in html
     assert 'id="delete-report"' in html
+    assert 'id="delete-confirmation"' in html
+    assert "showDeleteConfirmation" in html
     assert "deleteActiveReport" in html
+    assert 'id="toggle-history"' in html
+    assert "HISTORY_EXPANDED_LIMIT" in html
     assert "Founder offer letter" in html
     assert "function renderReport" in html
+    assert "Deleting..." not in html
+    assert "Creating Request..." not in html
     assert "/static/app.js" not in html
     assert "/static/styles.css" not in html
 

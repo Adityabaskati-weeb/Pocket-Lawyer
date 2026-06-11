@@ -50,6 +50,12 @@
         scroll-behavior: smooth;
       }
 
+      #page-top,
+      #scanner,
+      #history-title {
+        scroll-margin-top: calc(92px + env(safe-area-inset-top));
+      }
+
       body {
         margin: 0;
         min-width: 320px;
@@ -353,7 +359,8 @@
         font-family: Fraunces, Georgia, serif;
       }
 
-      h1 {
+      h1,
+      .app-title {
         max-width: 760px;
         margin: 0;
         font-size: clamp(38px, 5vw, 62px);
@@ -876,7 +883,7 @@
       }
 
       .hidden {
-        display: none;
+        display: none !important;
       }
 
       .report-content {
@@ -1145,6 +1152,55 @@
         color: #92400e;
         border-color: rgba(245, 158, 11, 0.36);
         background: rgba(255, 251, 235, 0.9);
+      }
+
+      .delete-confirmation {
+        display: grid;
+        gap: 10px;
+        margin: var(--space-2) 0;
+        border: 1px solid rgba(153, 27, 27, 0.24);
+        border-radius: 22px;
+        padding: 14px;
+        background:
+          linear-gradient(135deg, rgba(254, 242, 242, 0.9), rgba(255, 251, 235, 0.74)),
+          rgba(255, 255, 255, 0.78);
+        box-shadow: 0 14px 34px rgba(153, 27, 27, 0.08);
+      }
+
+      .delete-confirmation p {
+        margin: 0;
+      }
+
+      .delete-confirmation-title {
+        color: #7f1d1d;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .delete-confirmation-copy {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .delete-confirmation-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      #confirm-delete-report {
+        color: #fff;
+        border-color: rgba(153, 27, 27, 0.4);
+        background: linear-gradient(135deg, #991b1b, #ef4444);
+      }
+
+      #cancel-delete-report {
+        color: var(--primary);
+        background: rgba(255, 255, 255, 0.78);
       }
 
       .finding-meta {
@@ -1424,6 +1480,13 @@
         background: rgba(255, 255, 255, 0.72);
       }
 
+      .history-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
       .history-list {
         display: grid;
         gap: 10px;
@@ -1431,6 +1494,8 @@
       }
 
       .history-item {
+        content-visibility: auto;
+        contain-intrinsic-size: 64px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -1805,7 +1870,7 @@
         <div class="intro-strip">
           <div>
             <p class="eyebrow">Pocket Lawyer</p>
-            <h1 id="app-title">Check your contract before you sign.</h1>
+            <h2 id="app-title" class="app-title">Check your contract before you sign.</h2>
             <p class="subcopy">Choose a contract type, paste the agreement text, and get a red, yellow, and green risk report in plain language.</p>
             <div class="proof-grid" aria-label="Scanner capabilities">
               <div class="proof-card">
@@ -1864,7 +1929,7 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
                 <strong>Drop A Contract File</strong>
                 <span>TXT, Markdown, readable PDF, DOCX, or image. OCR needs optional Docling setup.</span>
               </label>
-              <input id="contract-file" type="file" accept=".txt,.text,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff">
+              <input id="contract-file" name="contract-file" type="file" accept=".txt,.text,.md,.pdf,.docx,.png,.jpg,.jpeg,.webp,.bmp,.tif,.tiff">
             </div>
             <section id="upload-status" class="upload-status idle" aria-labelledby="upload-status-title" aria-live="polite" role="status">
               <span class="upload-status-dot" aria-hidden="true"></span>
@@ -1933,6 +1998,14 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
                 <button id="delete-report" type="button" disabled data-ripple>Delete Saved Report</button>
                 <span>Removes this saved report, uploaded artifact, and any local review request from the local vault.</span>
               </div>
+              <section id="delete-confirmation" class="delete-confirmation hidden" aria-labelledby="delete-confirmation-title" aria-describedby="delete-confirmation-copy">
+                <p id="delete-confirmation-title" class="delete-confirmation-title">Confirm Deletion</p>
+                <p id="delete-confirmation-copy" class="delete-confirmation-copy">This removes the saved report, uploaded file artifact, and any lawyer review request from this local vault.</p>
+                <div class="delete-confirmation-actions">
+                  <button id="confirm-delete-report" type="button" data-ripple>Delete Report</button>
+                  <button id="cancel-delete-report" type="button" data-ripple>Keep Report</button>
+                </div>
+              </section>
 
               <div class="finding-counts" aria-label="Risk finding breakdown">
                 <span class="count-card red-card"><i aria-hidden="true">!</i><strong id="red-count">0</strong><em>Red</em></span>
@@ -1954,7 +2027,10 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
             <section class="history" aria-labelledby="history-title">
               <div class="history-topline">
                 <h2 id="history-title">Recent Scans</h2>
-                <button id="refresh-history" type="button" data-ripple>Refresh</button>
+                <div class="history-actions">
+                  <button id="toggle-history" type="button" class="hidden" aria-expanded="false" data-ripple>View All</button>
+                  <button id="refresh-history" type="button" data-ripple>Refresh</button>
+                </div>
               </div>
               <div id="history-list" class="history-list"></div>
             </section>
@@ -2052,6 +2128,9 @@ The EMI schedule is attached as Annexure A.`,
       const lawyerReviewCopy = document.querySelector("#lawyer-review-copy");
       const requestReview = document.querySelector("#request-review");
       const deleteReport = document.querySelector("#delete-report");
+      const deleteConfirmation = document.querySelector("#delete-confirmation");
+      const confirmDeleteReport = document.querySelector("#confirm-delete-report");
+      const cancelDeleteReport = document.querySelector("#cancel-delete-report");
       const redCount = document.querySelector("#red-count");
       const yellowCount = document.querySelector("#yellow-count");
       const greenCount = document.querySelector("#green-count");
@@ -2059,12 +2138,16 @@ The EMI schedule is attached as Annexure A.`,
       const negotiationScript = document.querySelector("#negotiation-script");
       const copyScript = document.querySelector("#copy-script");
       const disclaimer = document.querySelector("#disclaimer");
+      const toggleHistory = document.querySelector("#toggle-history");
       const refreshHistory = document.querySelector("#refresh-history");
       const historyList = document.querySelector("#history-list");
       const SCORE_CIRCUMFERENCE = 326.73;
-      const DEFAULT_TEXT_PLACEHOLDER = "Paste your agreement text here...";
+      const DEFAULT_TEXT_PLACEHOLDER = "Paste your agreement text here…";
+      const HISTORY_COLLAPSED_LIMIT = 6;
+      const HISTORY_EXPANDED_LIMIT = 24;
       let activeReportId = "";
       let activeReport = null;
+      let historyExpanded = false;
       const DIRECT_TEXT_EXTENSIONS = new Set(["txt", "text", "md"]);
       const PDF_EXTENSIONS = new Set(["pdf"]);
       const DOCLING_EXTENSIONS = new Set(["docx", "png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"]);
@@ -2185,14 +2268,14 @@ The EMI schedule is attached as Annexure A.`,
               title: "Reading File",
               message: "Encoding the selected file locally before upload.",
             });
-            setStatus("Reading File...", "loading");
+            setStatus("Reading File…", "loading");
             body = await buildFilePayload(file);
             renderUploadStatus(file, {
               level: "loading",
               title: "Extracting Text",
               message: "Uploading the file for text extraction and risk analysis.",
             });
-            setStatus("Extracting...", "loading");
+            setStatus("Extracting…", "loading");
           } else {
             body = { text, source_name: "Pasted contract", contract_type: contractType.value };
           }
@@ -2244,6 +2327,10 @@ The EMI schedule is attached as Annexure A.`,
       });
 
       refreshHistory.addEventListener("click", loadHistory);
+      toggleHistory.addEventListener("click", () => {
+        historyExpanded = !historyExpanded;
+        loadHistory();
+      });
 
       copyScript.addEventListener("click", async () => {
         const text = negotiationScript.textContent.trim();
@@ -2266,7 +2353,9 @@ The EMI schedule is attached as Annexure A.`,
       });
 
       requestReview.addEventListener("click", createReviewRequest);
-      deleteReport.addEventListener("click", deleteActiveReport);
+      deleteReport.addEventListener("click", showDeleteConfirmation);
+      confirmDeleteReport.addEventListener("click", deleteActiveReport);
+      cancelDeleteReport.addEventListener("click", () => hideDeleteConfirmation({ restoreDeleteButton: true }));
 
       loadHistory();
 
@@ -2389,6 +2478,35 @@ The EMI schedule is attached as Annexure A.`,
         deleteReport.disabled = !hasReport;
         deleteReport.classList.remove("loading");
         deleteReport.textContent = "Delete Saved Report";
+        hideDeleteConfirmation({ restoreDeleteButton: false });
+      }
+
+      function showDeleteConfirmation() {
+        if (!activeReportId || deleteReport.disabled) {
+          return;
+        }
+
+        deleteConfirmation.dataset.reportId = activeReportId;
+        deleteConfirmation.classList.remove("hidden");
+        deleteReport.disabled = true;
+        confirmDeleteReport.disabled = false;
+        cancelDeleteReport.disabled = false;
+        confirmDeleteReport.classList.remove("loading");
+        confirmDeleteReport.textContent = "Delete Report";
+        setStatus("Confirm Delete", "medium");
+        confirmDeleteReport.focus();
+      }
+
+      function hideDeleteConfirmation({ restoreDeleteButton = true } = {}) {
+        deleteConfirmation.classList.add("hidden");
+        deleteConfirmation.dataset.reportId = "";
+        confirmDeleteReport.disabled = false;
+        cancelDeleteReport.disabled = false;
+        confirmDeleteReport.classList.remove("loading");
+        confirmDeleteReport.textContent = "Delete Report";
+        if (restoreDeleteButton) {
+          renderVaultControls(Boolean(activeReportId));
+        }
       }
 
       async function createReviewRequest() {
@@ -2398,7 +2516,7 @@ The EMI schedule is attached as Annexure A.`,
 
         requestReview.disabled = true;
         requestReview.classList.add("loading");
-        requestReview.textContent = "Creating Request...";
+        requestReview.textContent = "Creating Request…";
         lawyerReviewCard.className = "lawyer-review-card ready";
         lawyerReviewStatus.className = "status-pill loading";
         lawyerReviewStatus.textContent = "Creating";
@@ -2439,15 +2557,18 @@ The EMI schedule is attached as Annexure A.`,
       }
 
       async function deleteActiveReport() {
-        if (!activeReportId || deleteReport.disabled) {
+        if (!activeReportId || confirmDeleteReport.disabled) {
           return;
         }
 
-        const reportId = activeReportId;
-        deleteReport.disabled = true;
+        const reportId = deleteConfirmation.dataset.reportId || activeReportId;
+        confirmDeleteReport.disabled = true;
+        cancelDeleteReport.disabled = true;
+        confirmDeleteReport.classList.add("loading");
+        confirmDeleteReport.textContent = "Deleting…";
         deleteReport.classList.add("loading");
-        deleteReport.textContent = "Deleting...";
-        setStatus("Deleting...", "loading");
+        deleteReport.textContent = "Deleting…";
+        setStatus("Deleting…", "loading");
 
         try {
           const response = await fetch(`/contracts/${reportId}`, {
@@ -2462,14 +2583,18 @@ The EMI schedule is attached as Annexure A.`,
           activeReport = null;
           reportContent.classList.add("hidden");
           emptyState.classList.remove("hidden");
+          hideDeleteConfirmation({ restoreDeleteButton: false });
           renderLawyerReview(null);
           renderVaultControls(false);
           setStatus("Deleted", "low");
           await loadHistory();
         } catch (error) {
-          deleteReport.disabled = false;
+          confirmDeleteReport.disabled = false;
+          cancelDeleteReport.disabled = false;
+          confirmDeleteReport.classList.remove("loading");
+          confirmDeleteReport.textContent = "Retry Delete";
           deleteReport.classList.remove("loading");
-          deleteReport.textContent = "Retry Delete";
+          deleteReport.textContent = "Delete Saved Report";
           setStatus("Delete Failed", "error");
         }
       }
@@ -2713,7 +2838,8 @@ The EMI schedule is attached as Annexure A.`,
         historyList.replaceChildren();
 
         const savedNames = new Set(contracts.map((contract) => contract.source_name));
-        const savedRows = contracts.slice(0, 3).map((contract) => ({
+        const savedLimit = historyExpanded ? HISTORY_EXPANDED_LIMIT : HISTORY_COLLAPSED_LIMIT;
+        const savedRows = contracts.slice(0, savedLimit).map((contract) => ({
           kind: "saved",
           label: contract.source_name,
           meta: `${titleCase(contract.contract_type || "contract")} / saved`,
@@ -2721,22 +2847,29 @@ The EMI schedule is attached as Annexure A.`,
           score: contract.overall_risk_score,
           id: contract.id,
         }));
-        const starterRows = STARTER_SCANS
-          .filter((scan) => !savedNames.has(scan.source_name))
-          .slice(0, 6 - savedRows.length)
-          .map((scan) => ({
-            kind: "demo",
-            label: scan.source_name,
-            meta: `${titleCase(scan.contract_type)} / example`,
-            level: scan.overall_risk_level,
-            score: scan.overall_risk_score,
-            contract_type: scan.contract_type,
-            source_name: scan.source_name,
-          }));
+        const starterRows = historyExpanded
+          ? []
+          : STARTER_SCANS
+              .filter((scan) => !savedNames.has(scan.source_name))
+              .slice(0, Math.max(0, HISTORY_COLLAPSED_LIMIT - savedRows.length))
+              .map((scan) => ({
+                kind: "demo",
+                label: scan.source_name,
+                meta: `${titleCase(scan.contract_type)} / example`,
+                level: scan.overall_risk_level,
+                score: scan.overall_risk_score,
+                contract_type: scan.contract_type,
+                source_name: scan.source_name,
+              }));
 
         [...savedRows, ...starterRows].forEach((row) => {
           historyList.append(createHistoryButton(row));
         });
+
+        const canExpand = contracts.length > HISTORY_COLLAPSED_LIMIT;
+        toggleHistory.classList.toggle("hidden", !canExpand && !historyExpanded);
+        toggleHistory.setAttribute("aria-expanded", String(historyExpanded));
+        toggleHistory.textContent = historyExpanded ? "Show Fewer" : "View All";
       }
 
       function createHistoryButton(row) {
