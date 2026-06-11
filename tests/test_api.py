@@ -54,26 +54,29 @@ def test_root_serves_web_app() -> None:
     assert "IP RIGHTS" not in html
     assert "fal-ai" not in html
     assert "FAL_KEY" not in html
-    assert "Answer contract questions before you sign." in html
-    assert "AI Contract Review Workspace" in html
+    assert "Contract answers shouldn" in html
+    assert "Legal AI For Everyday Contracts" in html
     assert "Working Now" in html
     assert "Coming Soon" in html
     assert "Check your contract before you sign." not in html
     assert "/static/pocket-lawyer-hero.png" not in html
     assert "contract-canvas" in html
-    assert "Live Workflow" in html
-    assert "Document Intake" in html
-    assert "Clause Risk Detection" in html
+    assert "Ask Your Contract" in html
+    assert "Pocket Lawyer Answer" in html
+    assert "Ask Terms" in html
+    assert "Find Risk Fast" in html
+    assert "Security Posture" in html
     assert "Encrypted Contract Vault" in html
     assert "Hosted LLM Strategy" in html
     assert "image-hero" not in html
-    assert '<h1 id="app-title" class="app-title">Answer contract questions before you sign.</h1>' in html
+    assert '<h1 id="app-title" class="app-title">Contract answers shouldn' in html
     assert 'href="#scan-form">Scanner' in html
-    assert 'href="#capabilities">Features' in html
-    assert 'href="#roadmap">Coming Soon' in html
+    assert 'href="#capabilities">Use Cases' in html
+    assert 'href="#security">Security' in html
+    assert 'href="#roadmap">Roadmap' in html
     assert "Local Browser Demo" in html
     assert "Readable PDF Support" in html
-    assert "Legal Info, Not Advice" in html
+    assert "Rules + Optional Ollama" in html
     assert "Contract Types" in html
     assert "Risk Levels" in html
     assert "Review Outputs" in html

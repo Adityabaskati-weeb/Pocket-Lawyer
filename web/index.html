@@ -150,7 +150,8 @@
       }
 
       .dock-brand,
-      .dock-link {
+      .dock-link,
+      .dock-cta {
         color: inherit;
         text-decoration: none;
       }
@@ -199,6 +200,27 @@
         background: rgba(18, 185, 129, 0.16);
       }
 
+      .dock-cta {
+        display: inline-flex;
+        min-height: 40px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 0 14px;
+        color: #ecfdf5;
+        background: linear-gradient(135deg, var(--primary), #0f766e 58%, var(--accent));
+        box-shadow: 0 12px 28px rgba(8, 17, 31, 0.2);
+        font-size: 13px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .dock-cta:hover,
+      .dock-cta:focus-visible {
+        transform: translateY(-1px);
+        box-shadow: 0 16px 34px rgba(8, 17, 31, 0.24);
+      }
+
       .eyebrow {
         margin: 0 0 var(--space-1);
         color: var(--accent);
@@ -223,6 +245,7 @@
         min-height: 54px;
         align-items: center;
         justify-content: center;
+        gap: 8px;
         overflow: hidden;
         border: 1px solid rgba(255, 247, 232, 0.36);
         border-radius: 999px;
@@ -233,6 +256,16 @@
         font-weight: 800;
         text-decoration: none;
         animation: float 3.6s ease-in-out infinite;
+      }
+
+      .hero-button.secondary {
+        color: var(--primary);
+        background:
+          linear-gradient(135deg, rgba(255, 253, 248, 0.9), rgba(236, 253, 245, 0.72)),
+          rgba(255, 255, 255, 0.8);
+        border-color: rgba(8, 17, 31, 0.12);
+        box-shadow: 0 10px 28px rgba(8, 17, 31, 0.1);
+        animation: none;
       }
 
       .hero-button:hover {
@@ -249,7 +282,7 @@
       }
 
       .app-shell {
-        width: min(1180px, calc(100% - 32px));
+        width: min(1240px, calc(100% - 32px));
         margin: 0 auto;
         padding: calc(104px + env(safe-area-inset-top)) 0 var(--space-8);
       }
@@ -262,17 +295,17 @@
 
       .intro-strip {
         display: grid;
-        grid-template-columns: minmax(0, 0.92fr) minmax(330px, 0.78fr);
-        gap: clamp(24px, 4vw, 44px);
+        grid-template-columns: minmax(0, 0.9fr) minmax(360px, 0.82fr);
+        gap: clamp(28px, 5vw, 64px);
         align-items: start;
         overflow: hidden;
         border: 1px solid rgba(8, 17, 31, 0.1);
-        border-radius: 40px;
-        padding: clamp(28px, 4vw, 52px);
+        border-radius: 46px;
+        padding: clamp(30px, 5vw, 64px);
         background:
-          radial-gradient(circle at 92% 12%, rgba(20, 184, 166, 0.18), transparent 28%),
-          radial-gradient(circle at 8% 8%, rgba(242, 184, 75, 0.16), transparent 22%),
-          linear-gradient(135deg, rgba(255, 253, 248, 0.92), rgba(236, 253, 245, 0.68)),
+          radial-gradient(circle at 94% 8%, rgba(158, 216, 255, 0.24), transparent 25%),
+          radial-gradient(circle at 4% 4%, rgba(242, 184, 75, 0.18), transparent 24%),
+          linear-gradient(135deg, rgba(255, 253, 248, 0.95), rgba(236, 253, 245, 0.72)),
           rgba(255, 255, 255, 0.82);
         box-shadow: var(--shadow-md);
       }
@@ -289,19 +322,19 @@
 
       h1,
       .app-title {
-        max-width: 760px;
+        max-width: 820px;
         margin: 0;
-        font-size: clamp(38px, 5vw, 62px);
-        line-height: 0.94;
-        letter-spacing: -0.04em;
+        font-size: clamp(48px, 7vw, 92px);
+        line-height: 0.88;
+        letter-spacing: -0.055em;
         text-wrap: balance;
       }
 
       .subcopy {
-        max-width: 690px;
-        margin: 16px 0 0;
+        max-width: 720px;
+        margin: 20px 0 0;
         color: #3f4b5f;
-        font-size: 17px;
+        font-size: clamp(17px, 1.7vw, 21px);
         line-height: 1.6;
       }
 
@@ -376,11 +409,11 @@
       .contract-canvas {
         align-self: start;
         display: grid;
-        gap: 14px;
+        gap: 16px;
         min-width: 0;
         border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 34px;
-        padding: 18px;
+        border-radius: 36px;
+        padding: 20px;
         color: #f8fafc;
         background:
           radial-gradient(circle at 15% 0%, rgba(158, 216, 255, 0.22), transparent 30%),
@@ -438,6 +471,90 @@
         padding: 14px;
         background: rgba(255, 255, 255, 0.08);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .ask-card,
+      .answer-card {
+        border: 1px solid rgba(236, 253, 245, 0.14);
+        border-radius: 24px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+
+      .ask-card {
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06)),
+          rgba(255, 255, 255, 0.08);
+      }
+
+      .ask-card p,
+      .answer-card p {
+        margin: 0;
+        color: #e2e8f0;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .ask-label,
+      .answer-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: #a7f3d0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .lucide-mark {
+        display: inline-grid;
+        width: 28px;
+        height: 28px;
+        flex: 0 0 auto;
+        place-items: center;
+        border: 1px solid rgba(236, 253, 245, 0.16);
+        border-radius: 999px;
+        color: #a7f3d0;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .lucide-mark svg {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        stroke-width: 2;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .clause-chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .clause-chip {
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        padding: 7px 9px;
+        color: #dbeafe;
+        background: rgba(255, 255, 255, 0.07);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .clause-chip.red {
+        color: #fecaca;
+        border-color: rgba(248, 113, 113, 0.34);
+        background: rgba(248, 113, 113, 0.12);
       }
 
       .canvas-card strong {
@@ -2078,29 +2195,32 @@
         <span>Pocket Lawyer</span>
       </a>
       <div class="dock-links">
-        <a class="dock-link" href="#page-top">Home</a>
-        <a class="dock-link" href="#capabilities">Features</a>
+        <a class="dock-link" href="#page-top">Platform</a>
         <a class="dock-link" href="#scan-form">Scanner</a>
-        <a class="dock-link" href="#roadmap">Coming Soon</a>
+        <a class="dock-link" href="#capabilities">Use Cases</a>
+        <a class="dock-link" href="#security">Security</a>
+        <a class="dock-link" href="#roadmap">Roadmap</a>
         <a class="dock-link" href="#history-title">Reports</a>
       </div>
+      <a class="dock-cta" href="#scan-form">Launch Scanner</a>
     </nav>
 
     <main id="page-top" class="app-shell">
       <section id="scanner" class="workspace" aria-labelledby="app-title">
         <div class="intro-strip">
           <div class="intro-copy">
-            <p class="eyebrow">AI Contract Review Workspace</p>
-            <h1 id="app-title" class="app-title">Answer contract questions before you sign.</h1>
-            <p class="subcopy">Scan common agreements, surface risky clauses, generate safer wording, and produce a negotiation message from one local browser workspace.</p>
+            <p class="eyebrow">Legal AI For Everyday Contracts</p>
+            <h1 id="app-title" class="app-title">Contract answers shouldn’t take days.</h1>
+            <p class="subcopy">Ask a contract what matters before you sign. Pocket Lawyer reviews common agreements, highlights risk, explains clauses in plain language, and drafts a negotiation message from one local browser workspace.</p>
             <div class="hero-actions">
-              <a class="hero-button" href="#scan-form" data-ripple>Scan Contract</a>
-              <span class="hero-proof">Built for a live product walkthrough: show the working scanner now, then explain the platform roadmap clearly.</span>
+              <a class="hero-button" href="#scan-form" data-ripple>Scan A Contract</a>
+              <a class="hero-button secondary" href="#capabilities" data-ripple>See What Works</a>
+              <span class="hero-proof">Robin-inspired legal intelligence design, adapted to Pocket Lawyer’s current local demo and roadmap.</span>
             </div>
             <ul class="trust-row" aria-label="Privacy and review safeguards">
               <li>Local Browser Demo</li>
               <li>Readable PDF Support</li>
-              <li>Legal Info, Not Advice</li>
+              <li>Rules + Optional Ollama</li>
             </ul>
             <div class="proof-grid" aria-label="Scanner capabilities">
               <div class="proof-card">
@@ -2119,31 +2239,36 @@
           </div>
           <aside class="contract-canvas" aria-label="Pocket Lawyer workflow preview">
             <div class="canvas-topline">
-              <p class="canvas-kicker">Live Workflow</p>
+              <p class="canvas-kicker">Ask Your Contract</p>
               <span class="canvas-status">Local Mode</span>
             </div>
-            <div class="canvas-row">
-              <div class="canvas-card">
-                <strong>1. Upload</strong>
-                <span>Paste text or add TXT, Markdown, readable PDF, DOCX, or image.</span>
-              </div>
-              <div class="canvas-card">
-                <strong>2. Risk Report</strong>
-                <div class="canvas-score">
-                  <span class="canvas-risk">High Risk</span>
-                  <strong>84</strong>
-                </div>
-                <div class="risk-bars" aria-hidden="true">
-                  <span class="risk-red"></span>
-                  <span class="risk-yellow"></span>
-                  <span class="risk-green"></span>
-                </div>
+            <div class="ask-card">
+              <span class="ask-label">
+                <span class="lucide-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path></svg>
+                </span>
+                Question
+              </span>
+              <p>“Can this employment clause stop me from joining another company for 24 months?”</p>
+            </div>
+            <div class="answer-card">
+              <span class="answer-label">
+                <span class="lucide-mark" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"></path></svg>
+                </span>
+                Pocket Lawyer Answer
+              </span>
+              <p>This is a high-risk non-compete. Ask to remove it or narrow it to a short non-solicitation clause for specific clients.</p>
+              <div class="clause-chip-row" aria-label="Detected risk summary">
+                <span class="clause-chip red">Red Flag</span>
+                <span class="clause-chip">Risk 84/100</span>
+                <span class="clause-chip">Negotiation Ready</span>
               </div>
             </div>
             <ol class="workflow-track">
-              <li><span>01</span>Detect contract type and clause matches.</li>
-              <li><span>02</span>Explain red, yellow, and green findings.</li>
-              <li><span>03</span>Generate negotiation wording and save report.</li>
+              <li><span>01</span>Upload or paste the agreement.</li>
+              <li><span>02</span>Review red, yellow, and green findings.</li>
+              <li><span>03</span>Copy safer wording and negotiation script.</li>
             </ol>
             <div class="canvas-metrics" aria-label="Current demo scope">
               <span><strong>6</strong>Types</span>
@@ -2158,39 +2283,39 @@
           <div class="section-heading">
             <div>
               <p class="eyebrow">Working Now</p>
-              <h2 id="capabilities-title">The live walkthrough can show real contract review, not a static mockup.</h2>
+              <h2 id="capabilities-title">Legal AI workflows mapped to what Pocket Lawyer can demo today.</h2>
             </div>
-            <p>These cards describe features implemented in the local browser app and safe to demonstrate live.</p>
+            <p>Inspired by modern legal AI platforms, but grounded in working scanner, report, and negotiation features.</p>
           </div>
           <div class="capability-grid">
             <article class="capability-card">
               <span class="feature-tag">Live</span>
-              <strong>Document Intake</strong>
+              <strong>Ask Terms</strong>
               <p>Paste text or upload supported files. Readable PDFs and plain text can feed the scanner directly.</p>
             </article>
             <article class="capability-card">
               <span class="feature-tag">Live</span>
-              <strong>Clause Risk Detection</strong>
+              <strong>Find Risk Fast</strong>
               <p>Rules and playbooks flag risky non-competes, broad IP assignment, deposit terms, fees, and more.</p>
             </article>
             <article class="capability-card">
               <span class="feature-tag">Live</span>
-              <strong>Plain-Language Report</strong>
+              <strong>Explain The Fine Print</strong>
               <p>Each result includes risk level, score, why it matters, suggested wording, and source span context.</p>
             </article>
             <article class="capability-card">
               <span class="feature-tag">Live</span>
-              <strong>Negotiation Message</strong>
+              <strong>Move From Risk To Reply</strong>
               <p>The app produces a ready-to-send negotiation script based on detected contract risks.</p>
             </article>
             <article class="capability-card">
               <span class="feature-tag">Live</span>
-              <strong>Saved Reports</strong>
+              <strong>Keep A Review Trail</strong>
               <p>Recent scans are stored locally so you can reopen, delete, and discuss previous reports.</p>
             </article>
             <article class="capability-card">
               <span class="feature-tag">Local</span>
-              <strong>Optional LLM Layer</strong>
+              <strong>Hybrid Review Path</strong>
               <p>The backend can enable local Ollama review when configured, while the demo still works with rules.</p>
             </article>
           </div>
@@ -2343,6 +2468,33 @@ The employee agrees to a non-compete for 24 months after employment and cannot w
             </section>
           </section>
         </div>
+
+        <section id="security" class="section-panel security-panel" aria-labelledby="security-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Security Posture</p>
+              <h2 id="security-title">Privacy language stays honest for the current local product.</h2>
+            </div>
+            <p>Enterprise trust badges come later. Today’s demo should be clear about local execution and legal-information limits.</p>
+          </div>
+          <div class="roadmap-grid">
+            <article class="roadmap-card">
+              <span class="feature-tag">Current</span>
+              <strong>Local Browser Review</strong>
+              <p>The demo runs against the local backend. Public hosted LLM calls are not required for the scanner to work.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag">Current</span>
+              <strong>Legal Info Disclaimer</strong>
+              <p>Reports are legal information, not legal advice. Important decisions still need a qualified lawyer.</p>
+            </article>
+            <article class="roadmap-card">
+              <span class="feature-tag pending">Coming Soon</span>
+              <strong>Production Privacy Controls</strong>
+              <p>Encrypted vault, audit logs, retention controls, and formal compliance review belong in the hosted product phase.</p>
+            </article>
+          </div>
+        </section>
 
         <section id="roadmap" class="section-panel roadmap-panel" aria-labelledby="roadmap-title">
           <div class="section-heading">
