@@ -52,6 +52,7 @@
 
       #page-top,
       #scanner,
+      #scan-form,
       #history-title {
         scroll-margin-top: calc(92px + env(safe-area-inset-top));
       }
@@ -129,19 +130,19 @@
         left: 50%;
         z-index: 10;
         display: flex;
-        width: min(720px, calc(100% - 28px));
-        min-height: 58px;
+        width: min(900px, calc(100% - 28px));
+        min-height: 64px;
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        border: 1px solid rgba(8, 17, 31, 0.1);
+        border: 1px solid rgba(8, 17, 31, 0.14);
         border-radius: 999px;
-        padding: 8px 10px 8px 12px;
+        padding: 10px 12px 10px 14px;
         color: var(--primary);
         background:
-          linear-gradient(135deg, rgba(255, 253, 248, 0.9), rgba(236, 253, 245, 0.74)),
-          rgba(255, 255, 255, 0.82);
-        box-shadow: 0 18px 70px rgba(8, 17, 31, 0.14);
+          linear-gradient(135deg, rgba(255, 253, 248, 0.96), rgba(236, 253, 245, 0.9)),
+          rgba(255, 255, 255, 0.92);
+        box-shadow: 0 18px 70px rgba(8, 17, 31, 0.16);
         backdrop-filter: blur(18px) saturate(1.2);
         transform: translateX(-50%);
       }
@@ -156,6 +157,7 @@
         display: inline-flex;
         align-items: center;
         gap: 10px;
+        font-size: 17px;
         font-weight: 900;
       }
 
@@ -175,16 +177,17 @@
       .dock-links {
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
       }
 
       .dock-link {
         border-radius: 999px;
-        padding: 10px 12px;
-        color: rgba(8, 17, 31, 0.7);
+        padding: 11px 14px;
+        color: rgba(8, 17, 31, 0.88);
         font-family: "JetBrains Mono", monospace;
-        font-size: 12px;
-        font-weight: 800;
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.02em;
         text-transform: uppercase;
       }
 
@@ -194,75 +197,6 @@
         background: rgba(18, 185, 129, 0.16);
       }
 
-      .image-hero {
-        position: relative;
-        display: grid;
-        justify-items: center;
-        padding: calc(94px + env(safe-area-inset-top)) 16px var(--space-5);
-        overflow: hidden;
-        background:
-          radial-gradient(circle at 12% 18%, rgba(242, 184, 75, 0.18), transparent 28%),
-          radial-gradient(circle at 86% 8%, rgba(20, 184, 166, 0.18), transparent 24%),
-          linear-gradient(180deg, #f8f1e7 0%, #fffdf8 44%, #f6efe2 100%);
-        isolation: isolate;
-      }
-
-      .image-hero::before {
-        position: absolute;
-        content: "";
-        inset: 10% -12% auto;
-        height: 220px;
-        background: radial-gradient(ellipse at center, rgba(18, 185, 129, 0.18), transparent 68%);
-        filter: blur(18px);
-        z-index: -1;
-      }
-
-      .image-hero-shell {
-        position: relative;
-        width: min(1480px, 100%);
-        margin: 0 auto;
-        overflow: hidden;
-        border: 1px solid rgba(8, 17, 31, 0.1);
-        border-radius: clamp(26px, 4vw, 48px);
-        background: #fffdf8;
-        box-shadow: 0 34px 110px rgba(8, 17, 31, 0.18);
-        animation: image-hero-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
-      }
-
-      .image-hero-photo {
-        display: block;
-        width: 100%;
-        height: auto;
-        aspect-ratio: 3 / 2;
-        object-fit: cover;
-        object-position: center;
-      }
-
-      .image-hero-panel {
-        position: relative;
-        display: grid;
-        width: min(1180px, calc(100% - 32px));
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: center;
-        gap: 18px 28px;
-        margin-top: 18px;
-        border: 1px solid rgba(255, 255, 255, 0.72);
-        border-radius: 30px;
-        padding: 18px 20px;
-        color: var(--primary);
-        background:
-          linear-gradient(135deg, rgba(255, 253, 248, 0.86), rgba(236, 253, 245, 0.74)),
-          rgba(255, 255, 255, 0.78);
-        box-shadow: 0 24px 70px rgba(8, 17, 31, 0.2);
-        backdrop-filter: blur(16px) saturate(1.18);
-        animation: panel-rise 760ms cubic-bezier(0.2, 0.8, 0.2, 1) 180ms both;
-      }
-
-      .image-hero-copy {
-        min-width: 0;
-      }
-
-      .hero-kicker,
       .eyebrow {
         margin: 0 0 var(--space-1);
         color: var(--accent);
@@ -272,29 +206,13 @@
         text-transform: uppercase;
       }
 
-      .image-hero-panel strong {
-        display: block;
-        color: var(--primary);
-        font-family: Fraunces, Georgia, serif;
-        font-size: clamp(25px, 2.7vw, 38px);
-        line-height: 0.96;
-        letter-spacing: -0.04em;
-      }
-
-      .image-hero-panel p {
-        margin: 0;
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.55;
-      }
-
       .hero-actions {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: flex-start;
         gap: 14px;
-        justify-self: end;
+        margin-top: var(--space-3);
       }
 
       .hero-button {
@@ -321,16 +239,17 @@
       }
 
       .hero-proof {
-        max-width: 210px;
-        color: var(--muted);
+        max-width: 360px;
+        color: #445166;
         font-size: 14px;
-        font-weight: 700;
+        font-weight: 800;
+        line-height: 1.5;
       }
 
       .app-shell {
         width: min(1180px, calc(100% - 32px));
         margin: 0 auto;
-        padding: var(--space-6) 0 var(--space-8);
+        padding: calc(104px + env(safe-area-inset-top)) 0 var(--space-8);
       }
 
       .workspace {
@@ -341,16 +260,20 @@
 
       .intro-strip {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 280px;
-        gap: var(--space-3);
-        align-items: stretch;
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
+        gap: clamp(24px, 4vw, 44px);
+        align-items: start;
         border: 1px solid rgba(8, 17, 31, 0.08);
         border-radius: 36px;
-        padding: var(--space-3);
+        padding: clamp(24px, 4vw, 44px);
         background:
           linear-gradient(135deg, rgba(255, 253, 248, 0.86), rgba(236, 253, 245, 0.58)),
           rgba(255, 255, 255, 0.72);
         box-shadow: var(--shadow-md);
+      }
+
+      .intro-copy {
+        min-width: 0;
       }
 
       h1,
@@ -366,20 +289,54 @@
         font-size: clamp(38px, 5vw, 62px);
         line-height: 0.94;
         letter-spacing: -0.04em;
+        text-wrap: balance;
       }
 
       .subcopy {
-        max-width: 650px;
+        max-width: 690px;
         margin: 16px 0 0;
-        color: var(--muted);
+        color: #3f4b5f;
         font-size: 17px;
         line-height: 1.6;
+      }
+
+      .trust-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: var(--space-3) 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .trust-row li {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(8, 17, 31, 0.12);
+        border-radius: 999px;
+        padding: 9px 12px;
+        color: #243145;
+        background: rgba(255, 255, 255, 0.68);
+        box-shadow: 0 10px 24px rgba(8, 17, 31, 0.06);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .trust-row li::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        border-radius: 999px;
+        background: linear-gradient(135deg, var(--success), var(--accent));
+        box-shadow: 0 0 0 5px rgba(18, 185, 129, 0.12);
       }
 
       .proof-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
+        gap: 12px;
         margin-top: var(--space-3);
       }
 
@@ -405,16 +362,18 @@
       .proof-card span {
         display: block;
         margin-top: 4px;
-        color: var(--muted);
+        color: #4b5568;
         font-size: 12px;
         font-weight: 800;
         text-transform: uppercase;
       }
 
       .doc-image {
+        align-self: start;
         width: 100%;
-        height: 100%;
-        min-height: 190px;
+        height: auto;
+        aspect-ratio: 520 / 340;
+        min-height: 0;
         object-fit: cover;
         border: 1px solid rgba(8, 17, 31, 0.12);
         border-radius: 28px;
@@ -1568,30 +1527,6 @@
         color: var(--muted);
       }
 
-      @keyframes image-hero-in {
-        from {
-          opacity: 0;
-          transform: translateY(18px) scale(0.985);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-
-      @keyframes panel-rise {
-        from {
-          opacity: 0;
-          transform: translateY(18px) scale(0.97);
-        }
-
-        to {
-          opacity: 1;
-          transform: translateY(0) scale(1);
-        }
-      }
-
       @keyframes float {
         0%,
         100% {
@@ -1700,51 +1635,19 @@
       }
 
       @media (max-width: 1024px) {
-        .image-hero {
-          padding-top: calc(86px + env(safe-area-inset-top));
-        }
-
         .tool-grid {
           grid-template-columns: 1fr;
         }
       }
 
       @media (max-width: 768px) {
-        .image-hero {
-          padding: calc(82px + env(safe-area-inset-top)) 10px var(--space-3);
-        }
-
-        .image-hero-shell {
-          overflow: visible;
-          border: 0;
-          background: transparent;
-          box-shadow: none;
-        }
-
-        .image-hero-photo {
-          border: 1px solid rgba(8, 17, 31, 0.1);
-          border-radius: 30px;
-          box-shadow: 0 24px 70px rgba(8, 17, 31, 0.16);
-        }
-
-        .image-hero-panel {
-          width: min(100% - 20px, 520px);
-          grid-template-columns: 1fr;
-          margin-top: 14px;
-          border-radius: 24px;
-        }
-
-        .hero-actions {
-          justify-self: stretch;
-        }
-
         .hero-proof {
           max-width: none;
         }
 
         .app-shell {
           width: min(100% - 20px, 680px);
-          padding: var(--space-2) 0;
+          padding: calc(92px + env(safe-area-inset-top)) 0 var(--space-5);
         }
 
         .intro-strip {
@@ -1752,8 +1655,8 @@
         }
 
         .doc-image {
-          height: 148px;
-          min-height: 148px;
+          max-height: 220px;
+          object-fit: cover;
         }
 
         .contract-pills {
@@ -1775,25 +1678,8 @@
       }
 
       @media (max-width: 520px) {
-        .image-hero {
-          padding-inline: 8px;
-        }
-
-        .image-hero-photo {
-          aspect-ratio: auto;
-          object-fit: contain;
-        }
-
-        .image-hero-panel {
-          width: calc(100% - 16px);
-          padding: 16px;
-        }
-
-        .image-hero-panel strong {
-          font-size: 29px;
-        }
-
-        h1 {
+        h1,
+        .app-title {
           font-size: 34px;
         }
 
@@ -1804,6 +1690,14 @@
 
         .hero-button {
           width: 100%;
+        }
+
+        .trust-row li {
+          width: 100%;
+        }
+
+        .proof-grid {
+          grid-template-columns: 1fr;
         }
 
         .scan-panel,
@@ -1826,7 +1720,7 @@
     </style>
   </head>
   <body>
-    <a class="skip-link" href="#scanner">Skip To Scanner</a>
+    <a class="skip-link" href="#scan-form">Skip To Scanner</a>
     <nav class="luxury-dock" aria-label="Primary navigation">
       <a class="dock-brand" href="#page-top" aria-label="Pocket Lawyer home">
         <span class="dock-mark" translate="no">PL</span>
@@ -1834,56 +1728,39 @@
       </a>
       <div class="dock-links">
         <a class="dock-link" href="#page-top">Home</a>
-        <a class="dock-link" href="#scanner">Scanner</a>
+        <a class="dock-link" href="#scan-form">Scanner</a>
         <a class="dock-link" href="#history-title">Reports</a>
       </div>
     </nav>
 
-    <section id="page-top" class="image-hero" aria-labelledby="hero-title">
-      <h1 id="hero-title" class="sr-only">Legal Help. In Your Pocket.</h1>
-      <div class="image-hero-shell">
-        <img
-          class="image-hero-photo"
-          src="/static/pocket-lawyer-hero.png"
-          alt="Pocket Lawyer legal help hero with a phone app, scales of justice, a gavel, and law books"
-          width="1536"
-          height="1024"
-          fetchpriority="high"
-          decoding="async"
-        >
-        <div class="image-hero-panel">
-          <div class="image-hero-copy">
-            <p class="hero-kicker">Pocket Lawyer</p>
-            <strong>Review contracts before you sign.</strong>
-            <p>Upload or paste an agreement to surface red flags, safer wording, and a negotiation message in the browser.</p>
-          </div>
-          <div class="hero-actions">
-            <a class="hero-button" href="#scanner" data-ripple>Scan Contract</a>
-            <span class="hero-proof">Evidence-first. Plain language. Ready to discuss.</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <main id="scanner" class="app-shell">
-      <section class="workspace" aria-labelledby="app-title">
+    <main id="page-top" class="app-shell">
+      <section id="scanner" class="workspace" aria-labelledby="app-title">
         <div class="intro-strip">
-          <div>
+          <div class="intro-copy">
             <p class="eyebrow">Pocket Lawyer</p>
-            <h2 id="app-title" class="app-title">Check your contract before you sign.</h2>
-            <p class="subcopy">Choose a contract type, paste the agreement text, and get a red, yellow, and green risk report in plain language.</p>
+            <h1 id="app-title" class="app-title">Review contracts before you sign.</h1>
+            <p class="subcopy">Upload a readable PDF, DOCX, image, or paste agreement text to surface red flags, safer wording, and a negotiation message in plain language.</p>
+            <div class="hero-actions">
+              <a class="hero-button" href="#scan-form" data-ripple>Scan Contract</a>
+              <span class="hero-proof">Evidence-first findings. Documents stay on this local demo unless you save a report.</span>
+            </div>
+            <ul class="trust-row" aria-label="Privacy and review safeguards">
+              <li>Documents Stay Local</li>
+              <li>Legal Info, Not Advice</li>
+              <li>Human Review Escalation</li>
+            </ul>
             <div class="proof-grid" aria-label="Scanner capabilities">
               <div class="proof-card">
                 <strong>6</strong>
-                <span>Agreement Types</span>
+                <span>Contract Types</span>
               </div>
               <div class="proof-card">
-                <strong>AI</strong>
-                <span>Review Status</span>
+                <strong>3</strong>
+                <span>Risk Levels</span>
               </div>
               <div class="proof-card">
-                <strong>1</strong>
-                <span>Negotiation Message</span>
+                <strong>4</strong>
+                <span>Review Outputs</span>
               </div>
             </div>
           </div>
@@ -1893,7 +1770,6 @@
             alt="Illustration of a legal document being checked"
             width="520"
             height="340"
-            loading="lazy"
           >
         </div>
 

@@ -33,9 +33,6 @@ def test_root_serves_web_app() -> None:
             content_type = response.headers["Content-Type"]
 
     assert "text/html" in content_type
-    assert "Legal Help. In Your Pocket." in html
-    assert "/static/pocket-lawyer-hero.png" in html
-    assert "image-hero" in html
     assert "luxury-dock" in html
     assert "proof-grid" in html
     assert "Drop A Contract File" in html
@@ -57,8 +54,19 @@ def test_root_serves_web_app() -> None:
     assert "IP RIGHTS" not in html
     assert "fal-ai" not in html
     assert "FAL_KEY" not in html
-    assert "Check your contract before you sign." in html
-    assert '<h2 id="app-title" class="app-title">Check your contract before you sign.</h2>' in html
+    assert "Review contracts before you sign." in html
+    assert "Check your contract before you sign." not in html
+    assert "/static/pocket-lawyer-hero.png" not in html
+    assert "image-hero" not in html
+    assert '<h1 id="app-title" class="app-title">Review contracts before you sign.</h1>' in html
+    assert 'href="#scan-form">Scanner' in html
+    assert "Documents Stay Local" in html
+    assert "Legal Info, Not Advice" in html
+    assert "Human Review Escalation" in html
+    assert "Contract Types" in html
+    assert "Risk Levels" in html
+    assert "Review Outputs" in html
+    assert "Agreement Types" not in html
     assert "scroll-margin-top" in html
     assert 'value="loan"' in html
     assert "contract-pill" in html
