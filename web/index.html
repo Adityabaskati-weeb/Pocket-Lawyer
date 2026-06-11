@@ -6,7 +6,7 @@
     <title>Pocket Lawyer</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=JetBrains+Mono:wght@600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&amp;family=JetBrains+Mono:wght@600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
     <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="10" fill="%230F172A"/><text x="50%" y="57%" text-anchor="middle" font-size="24" font-family="monospace" font-weight="700" fill="%2310B981">PL</text></svg>'>
     <style>
       :root {
@@ -58,6 +58,7 @@
       }
 
       body {
+        position: relative;
         margin: 0;
         min-width: 320px;
         overflow-x: hidden;
@@ -69,6 +70,7 @@
           var(--canvas);
         font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
         letter-spacing: 0;
+        -webkit-tap-highlight-color: rgba(18, 185, 129, 0.18);
       }
 
       button,
@@ -247,7 +249,7 @@
       }
 
       .app-shell {
-        width: min(1180px, calc(100% - 32px));
+        width: min(1240px, calc(100% - 32px));
         margin: 0 auto;
         padding: calc(104px + env(safe-area-inset-top)) 0 var(--space-8);
       }
@@ -259,17 +261,52 @@
       }
 
       .intro-strip {
+        position: relative;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(240px, 340px);
-        gap: clamp(24px, 4vw, 44px);
+        grid-template-columns: minmax(0, 0.96fr) minmax(310px, 0.74fr);
+        gap: clamp(28px, 4vw, 52px);
         align-items: start;
-        border: 1px solid rgba(8, 17, 31, 0.08);
-        border-radius: 36px;
-        padding: clamp(24px, 4vw, 44px);
+        overflow: hidden;
+        border: 1px solid rgba(8, 17, 31, 0.1);
+        border-radius: 42px;
+        padding: clamp(28px, 4vw, 52px);
         background:
-          linear-gradient(135deg, rgba(255, 253, 248, 0.86), rgba(236, 253, 245, 0.58)),
-          rgba(255, 255, 255, 0.72);
+          radial-gradient(circle at 82% 12%, rgba(18, 185, 129, 0.2), transparent 26%),
+          radial-gradient(circle at 8% 8%, rgba(242, 184, 75, 0.18), transparent 22%),
+          linear-gradient(135deg, rgba(255, 253, 248, 0.92), rgba(236, 253, 245, 0.72)),
+          rgba(255, 255, 255, 0.82);
         box-shadow: var(--shadow-md);
+        isolation: isolate;
+      }
+
+      .intro-strip::before,
+      .intro-strip::after {
+        position: absolute;
+        content: "";
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .intro-strip::before {
+        inset: 18px;
+        border: 1px solid rgba(8, 17, 31, 0.08);
+        border-radius: 32px;
+      }
+
+      .intro-strip::after {
+        right: -90px;
+        bottom: -120px;
+        width: 310px;
+        height: 310px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(20, 184, 166, 0.18), transparent 68%);
+        filter: blur(6px);
+      }
+
+      .intro-copy,
+      .hero-showcase {
+        position: relative;
+        z-index: 1;
       }
 
       .intro-copy {
@@ -298,6 +335,7 @@
         color: #3f4b5f;
         font-size: 17px;
         line-height: 1.6;
+        text-wrap: pretty;
       }
 
       .trust-row {
@@ -344,6 +382,7 @@
         min-width: 0;
         border: 1px solid rgba(8, 17, 31, 0.08);
         border-radius: 22px;
+        min-height: 92px;
         padding: 14px;
         background:
           linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(236, 253, 245, 0.48)),
@@ -368,21 +407,144 @@
         text-transform: uppercase;
       }
 
-      .doc-image {
+      .hero-showcase {
         align-self: start;
+        display: grid;
+        gap: 0;
+        min-width: 0;
+      }
+
+      .showcase-photo-card {
+        position: relative;
+        overflow: hidden;
+        margin: 0;
+        border: 1px solid rgba(8, 17, 31, 0.12);
+        border-radius: 34px;
+        background: #fffdf8;
+        box-shadow: 0 26px 70px rgba(8, 17, 31, 0.18);
+      }
+
+      .showcase-photo-card::after {
+        position: absolute;
+        content: "";
+        inset: auto 0 0;
+        height: 48%;
+        background: linear-gradient(180deg, transparent, rgba(8, 17, 31, 0.48));
+        pointer-events: none;
+      }
+
+      .showcase-photo {
+        display: block;
         width: 100%;
         height: auto;
-        aspect-ratio: 520 / 340;
-        min-height: 0;
+        aspect-ratio: 4 / 3;
         object-fit: cover;
-        border: 1px solid rgba(8, 17, 31, 0.12);
+        object-position: center;
+      }
+
+      .verdict-card {
+        position: relative;
+        z-index: 2;
+        margin: -42px 18px 0;
+        border: 1px solid rgba(236, 253, 245, 0.18);
         border-radius: 28px;
-        box-shadow: 0 22px 46px rgba(8, 17, 31, 0.14);
+        padding: 18px;
+        color: #f8fafc;
+        background:
+          radial-gradient(circle at 14% 0%, rgba(20, 184, 166, 0.28), transparent 28%),
+          linear-gradient(145deg, #06111f, #10233b 48%, #103c37);
+        box-shadow: 0 24px 64px rgba(8, 17, 31, 0.28);
+      }
+
+      .verdict-kicker {
+        margin: 0 0 10px;
+        color: #a7f3d0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .verdict-headline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .risk-chip {
+        border: 1px solid rgba(248, 113, 113, 0.36);
+        border-radius: 999px;
+        padding: 7px 10px;
+        color: #fecaca;
+        background: rgba(239, 68, 68, 0.14);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .verdict-headline strong {
+        color: #ffffff;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 22px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .verdict-meter {
+        display: grid;
+        grid-template-columns: 3fr 1.3fr 0.8fr;
+        gap: 5px;
+        margin: 14px 0;
+      }
+
+      .verdict-meter span {
+        height: 7px;
+        border-radius: 999px;
+      }
+
+      .meter-red {
+        background: #f87171;
+      }
+
+      .meter-yellow {
+        background: #fbbf24;
+      }
+
+      .meter-green {
+        background: #34d399;
+      }
+
+      .verdict-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .verdict-list li {
+        display: flex;
+        min-width: 0;
+        gap: 8px;
+        color: #dcefe8;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .verdict-list span {
+        flex: 0 0 auto;
+        color: #a7f3d0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
       }
 
       .tool-grid {
         display: grid;
-        grid-template-columns: minmax(330px, 0.92fr) minmax(380px, 1.08fr);
+        grid-template-columns: minmax(340px, 0.94fr) minmax(400px, 1.06fr);
         gap: var(--space-3);
         align-items: start;
       }
@@ -392,14 +554,21 @@
         position: relative;
         overflow: hidden;
         background:
-          linear-gradient(145deg, rgba(255, 253, 248, 0.92), rgba(255, 255, 255, 0.78)),
+          radial-gradient(circle at 12% 0%, rgba(242, 184, 75, 0.1), transparent 26%),
+          linear-gradient(145deg, rgba(255, 253, 248, 0.95), rgba(255, 255, 255, 0.8)),
           var(--surface-glass);
-        border: 1px solid rgba(8, 17, 31, 0.1);
-        border-radius: 34px;
-        box-shadow: var(--shadow-md);
+        border: 1px solid rgba(8, 17, 31, 0.12);
+        border-radius: 38px;
+        box-shadow: 0 28px 80px rgba(8, 17, 31, 0.13);
         backdrop-filter: blur(12px);
         padding: var(--space-3);
         transform-style: preserve-3d;
+      }
+
+      .scan-panel:focus-within,
+      .report-panel:focus-within {
+        border-color: rgba(18, 185, 129, 0.34);
+        box-shadow: var(--glow), 0 28px 80px rgba(8, 17, 31, 0.13);
       }
 
       .scan-panel::before,
@@ -1654,9 +1823,12 @@
           grid-template-columns: 1fr;
         }
 
-        .doc-image {
-          max-height: 220px;
-          object-fit: cover;
+        .hero-showcase {
+          width: min(100%, 520px);
+        }
+
+        .showcase-photo {
+          aspect-ratio: 16 / 10;
         }
 
         .contract-pills {
@@ -1698,6 +1870,16 @@
 
         .proof-grid {
           grid-template-columns: 1fr;
+        }
+
+        .showcase-photo-card {
+          border-radius: 26px;
+        }
+
+        .verdict-card {
+          margin: -28px 12px 0;
+          border-radius: 22px;
+          padding: 16px;
         }
 
         .scan-panel,
@@ -1742,7 +1924,7 @@
             <p class="subcopy">Upload a readable PDF, DOCX, image, or paste agreement text to surface red flags, safer wording, and a negotiation message in plain language.</p>
             <div class="hero-actions">
               <a class="hero-button" href="#scan-form" data-ripple>Scan Contract</a>
-              <span class="hero-proof">Evidence-first findings. Documents stay on this local demo unless you save a report.</span>
+              <span class="hero-proof">Evidence-first findings. Documents stay on this device unless you save a report.</span>
             </div>
             <ul class="trust-row" aria-label="Privacy and review safeguards">
               <li>Documents Stay Local</li>
@@ -1764,13 +1946,36 @@
               </div>
             </div>
           </div>
-          <img
-            class="doc-image"
-            src='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 340"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="%230f172a"/><stop offset="1" stop-color="%2310b981"/></linearGradient></defs><rect width="520" height="340" rx="18" fill="%23f8fafc"/><rect x="54" y="44" width="300" height="238" rx="14" fill="white" stroke="%23d8dee8" stroke-width="3"/><path d="M92 92h224M92 132h184M92 172h224M92 212h150" stroke="%230f172a" stroke-width="10" stroke-linecap="round" opacity=".75"/><circle cx="398" cy="138" r="62" fill="url(%23g)" opacity=".92"/><path d="m371 137 19 20 38-45" fill="none" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-            alt="Illustration of a legal document being checked"
-            width="520"
-            height="340"
-          >
+          <aside class="hero-showcase" aria-label="Example contract review preview">
+            <figure class="showcase-photo-card">
+              <img
+                class="showcase-photo"
+                src="/static/pocket-lawyer-hero.png"
+                alt="Pocket Lawyer legal workspace with phone app, scales of justice, law books, and a gavel"
+                width="1536"
+                height="1024"
+                fetchpriority="high"
+                decoding="async"
+              >
+            </figure>
+            <div class="verdict-card">
+              <p class="verdict-kicker">Sample Report Preview</p>
+              <div class="verdict-headline">
+                <span class="risk-chip">High Risk</span>
+                <strong>84/100</strong>
+              </div>
+              <div class="verdict-meter" aria-hidden="true">
+                <span class="meter-red"></span>
+                <span class="meter-yellow"></span>
+                <span class="meter-green"></span>
+              </div>
+              <ul class="verdict-list">
+                <li><span>Red</span>24-month non-compete needs narrowing.</li>
+                <li><span>Yellow</span>IP ownership should exclude side projects.</li>
+                <li><span>Next</span>Use the generated negotiation script.</li>
+              </ul>
+            </div>
+          </aside>
         </div>
 
         <div class="tool-grid">

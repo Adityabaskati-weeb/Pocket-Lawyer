@@ -56,7 +56,10 @@ def test_root_serves_web_app() -> None:
     assert "FAL_KEY" not in html
     assert "Review contracts before you sign." in html
     assert "Check your contract before you sign." not in html
-    assert "/static/pocket-lawyer-hero.png" not in html
+    assert "/static/pocket-lawyer-hero.png" in html
+    assert "hero-showcase" in html
+    assert "Sample Report Preview" in html
+    assert "24-month non-compete needs narrowing." in html
     assert "image-hero" not in html
     assert '<h1 id="app-title" class="app-title">Review contracts before you sign.</h1>' in html
     assert 'href="#scan-form">Scanner' in html
